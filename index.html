@@ -1,0 +1,1397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>MJSR Fire Extinguisher Management</title>
+<style>
+  :root {
+    --red:       #c0392b;
+    --red-dark:  #96281b;
+    --red-light: #e74c3c;
+    --orange:    #e67e22;
+    --green:     #27ae60;
+    --amber:     #f39c12;
+    --slate:     #2c3e50;
+    --slate-mid: #34495e;
+    --slate-light: #4a6275;
+    --bg:        #f0f2f5;
+    --card:      #ffffff;
+    --border:    #dce1e7;
+    --text:      #1a2332;
+    --muted:     #6b7c93;
+    --white:     #ffffff;
+    --shadow:    0 2px 12px rgba(0,0,0,0.08);
+    --shadow-lg: 0 8px 32px rgba(0,0,0,0.14);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  /* ── HEADER ── */
+  .header {
+    background: linear-gradient(135deg, var(--slate) 0%, var(--slate-mid) 100%);
+    color: var(--white);
+    padding: 0;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 16px rgba(0,0,0,0.25);
+  }
+  .header-inner {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 20px;
+  }
+  .header-icon {
+    width: 42px; height: 42px;
+    background: var(--red);
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px;
+    flex-shrink: 0;
+    box-shadow: 0 2px 8px rgba(192,57,43,0.5);
+  }
+  .header-text h1 { font-size: 16px; font-weight: 700; letter-spacing: 0.3px; }
+  .header-text p  { font-size: 11px; opacity: 0.65; margin-top: 1px; }
+  .header-admin-btn {
+    margin-left: auto;
+    background: rgba(255,255,255,0.12);
+    border: 1px solid rgba(255,255,255,0.2);
+    color: var(--white);
+    padding: 7px 14px;
+    border-radius: 8px;
+    font-size: 12px;
+    cursor: pointer;
+    display: flex; align-items: center; gap: 6px;
+    transition: background 0.2s;
+  }
+  .header-admin-btn:hover { background: rgba(255,255,255,0.2); }
+
+  /* ── NAV TABS ── */
+  .nav-tabs {
+    display: flex;
+    background: var(--slate-mid);
+    border-top: 1px solid rgba(255,255,255,0.08);
+  }
+  .nav-tab {
+    flex: 1;
+    padding: 10px 6px;
+    text-align: center;
+    font-size: 11px;
+    color: rgba(255,255,255,0.55);
+    cursor: pointer;
+    border-bottom: 3px solid transparent;
+    transition: all 0.2s;
+    font-weight: 500;
+    display: flex; flex-direction: column; align-items: center; gap: 3px;
+  }
+  .nav-tab .tab-icon { font-size: 16px; }
+  .nav-tab.active {
+    color: var(--white);
+    border-bottom-color: var(--red);
+    background: rgba(255,255,255,0.06);
+  }
+
+  /* ── VIEWS ── */
+  .view { display: none; padding: 16px; }
+  .view.active { display: block; }
+
+  /* ── SCAN VIEW ── */
+  .scan-hero {
+    background: linear-gradient(135deg, var(--red) 0%, var(--red-dark) 100%);
+    border-radius: 16px;
+    padding: 28px 20px;
+    text-align: center;
+    color: var(--white);
+    margin-bottom: 20px;
+    box-shadow: var(--shadow-lg);
+  }
+  .scan-hero .hero-icon { font-size: 52px; margin-bottom: 12px; }
+  .scan-hero h2 { font-size: 20px; font-weight: 700; }
+  .scan-hero p  { font-size: 13px; opacity: 0.8; margin-top: 6px; }
+
+  .btn-scan {
+    width: 100%;
+    background: var(--white);
+    color: var(--red);
+    border: none;
+    padding: 16px;
+    border-radius: 12px;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+    margin-top: 16px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+    transition: transform 0.15s, box-shadow 0.15s;
+  }
+  .btn-scan:active { transform: scale(0.98); }
+
+  .manual-section { margin-top: 16px; }
+  .manual-section label { font-size: 12px; color: var(--muted); font-weight: 600; display: block; margin-bottom: 6px; }
+  .manual-select {
+    width: 100%;
+    padding: 12px 14px;
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    font-size: 14px;
+    background: var(--card);
+    color: var(--text);
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236b7c93' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+  }
+  .btn-manual {
+    width: 100%;
+    background: var(--slate);
+    color: var(--white);
+    border: none;
+    padding: 13px;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 10px;
+    transition: background 0.2s;
+  }
+  .btn-manual:hover { background: var(--slate-mid); }
+
+  /* ── INSPECTION FORM ── */
+  .form-card {
+    background: var(--card);
+    border-radius: 14px;
+    box-shadow: var(--shadow);
+    overflow: hidden;
+  }
+  .form-card-header {
+    background: linear-gradient(135deg, var(--red) 0%, var(--red-dark) 100%);
+    padding: 16px 20px;
+    color: var(--white);
+  }
+  .form-card-header .fe-id { font-size: 22px; font-weight: 800; letter-spacing: 1px; }
+  .form-card-header .fe-meta { font-size: 12px; opacity: 0.85; margin-top: 4px; }
+  .form-card-header .fe-type-badge {
+    display: inline-block;
+    background: rgba(255,255,255,0.2);
+    border-radius: 6px;
+    padding: 3px 10px;
+    font-size: 11px;
+    font-weight: 700;
+    margin-top: 8px;
+    letter-spacing: 0.5px;
+  }
+  .form-body { padding: 20px; }
+
+  .field-group { margin-bottom: 16px; }
+  .field-group label {
+    font-size: 12px;
+    color: var(--muted);
+    font-weight: 600;
+    display: block;
+    margin-bottom: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+  }
+
+  /* Condition selector */
+  .condition-btns { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+  .cond-btn {
+    padding: 10px 6px;
+    border-radius: 10px;
+    border: 2px solid var(--border);
+    background: var(--card);
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.15s;
+    color: var(--muted);
+    display: flex; flex-direction: column; align-items: center; gap: 4px;
+  }
+  .cond-btn .cond-icon { font-size: 20px; }
+  .cond-btn.selected-good    { border-color: var(--green);  background: #eafaf1; color: var(--green); }
+  .cond-btn.selected-fair    { border-color: var(--amber);  background: #fef9e7; color: var(--orange); }
+  .cond-btn.selected-faulty  { border-color: var(--red);    background: #fdedec; color: var(--red); }
+
+  /* Gas level */
+  .gas-btns { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+  .gas-btn {
+    padding: 10px 6px;
+    border-radius: 10px;
+    border: 2px solid var(--border);
+    background: var(--card);
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.15s;
+    color: var(--muted);
+    display: flex; flex-direction: column; align-items: center; gap: 4px;
+  }
+  .gas-btn .gas-icon { font-size: 20px; }
+  .gas-btn.selected-full     { border-color: var(--green);  background: #eafaf1; color: var(--green); }
+  .gas-btn.selected-partial  { border-color: var(--amber);  background: #fef9e7; color: var(--orange); }
+  .gas-btn.selected-empty    { border-color: var(--red);    background: #fdedec; color: var(--red); }
+
+  /* Date + Inspector */
+  .input-field {
+    width: 100%;
+    padding: 12px 14px;
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    font-size: 14px;
+    background: var(--card);
+    color: var(--text);
+    transition: border-color 0.2s;
+  }
+  .input-field:focus { outline: none; border-color: var(--red); }
+
+  textarea.input-field { resize: vertical; min-height: 80px; font-family: inherit; }
+
+  .btn-submit {
+    width: 100%;
+    background: var(--red);
+    color: var(--white);
+    border: none;
+    padding: 16px;
+    border-radius: 12px;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    margin-top: 8px;
+    box-shadow: 0 4px 16px rgba(192,57,43,0.35);
+    transition: background 0.2s, transform 0.15s;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+  }
+  .btn-submit:hover  { background: var(--red-dark); }
+  .btn-submit:active { transform: scale(0.98); }
+  .btn-submit:disabled { background: #bbb; box-shadow: none; cursor: not-allowed; }
+
+  .btn-back {
+    background: none;
+    border: none;
+    color: var(--muted);
+    font-size: 13px;
+    cursor: pointer;
+    display: flex; align-items: center; gap: 6px;
+    margin-bottom: 14px;
+    padding: 4px 0;
+  }
+  .btn-back:hover { color: var(--text); }
+
+  /* ── EXPIRY FIELD ── */
+  .expiry-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+  /* ── SUCCESS TOAST ── */
+  .toast {
+    position: fixed;
+    bottom: 24px; left: 50%;
+    transform: translateX(-50%) translateY(80px);
+    background: var(--green);
+    color: var(--white);
+    padding: 14px 24px;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 600;
+    box-shadow: var(--shadow-lg);
+    z-index: 999;
+    transition: transform 0.35s cubic-bezier(0.34,1.56,0.64,1);
+    white-space: nowrap;
+  }
+  .toast.error { background: var(--red); }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+
+  /* ── DASHBOARD ── */
+  .section-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    margin-bottom: 12px;
+    margin-top: 20px;
+  }
+  .section-title:first-child { margin-top: 0; }
+
+  .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 4px; }
+  .stat-card {
+    background: var(--card);
+    border-radius: 12px;
+    padding: 16px;
+    box-shadow: var(--shadow);
+    text-align: center;
+  }
+  .stat-card .stat-num { font-size: 28px; font-weight: 800; }
+  .stat-card .stat-lbl { font-size: 11px; color: var(--muted); margin-top: 2px; }
+  .stat-card.red   .stat-num { color: var(--red); }
+  .stat-card.green .stat-num { color: var(--green); }
+  .stat-card.amber .stat-num { color: var(--amber); }
+  .stat-card.slate .stat-num { color: var(--slate); }
+
+  .dept-bar-row {
+    background: var(--card);
+    border-radius: 12px;
+    padding: 14px 16px;
+    box-shadow: var(--shadow);
+    margin-bottom: 8px;
+  }
+  .dept-bar-label { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 6px; }
+  .dept-bar-label .dept-name { font-weight: 600; }
+  .dept-bar-label .dept-pct  { color: var(--muted); font-size: 12px; }
+  .dept-bar-track { height: 8px; background: var(--border); border-radius: 4px; overflow: hidden; }
+  .dept-bar-fill  { height: 100%; border-radius: 4px; background: var(--red); transition: width 0.6s ease; }
+
+  /* ── LOG VIEW ── */
+  .filter-row {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
+    margin-bottom: 14px;
+  }
+  .log-item {
+    background: var(--card);
+    border-radius: 12px;
+    padding: 14px 16px;
+    box-shadow: var(--shadow);
+    margin-bottom: 8px;
+    border-left: 4px solid var(--border);
+    cursor: pointer;
+  }
+  .log-item.good   { border-left-color: var(--green); }
+  .log-item.fair   { border-left-color: var(--amber); }
+  .log-item.faulty { border-left-color: var(--red); }
+  .log-item-top { display: flex; justify-content: space-between; align-items: flex-start; }
+  .log-item-id  { font-size: 14px; font-weight: 700; }
+  .log-item-date { font-size: 11px; color: var(--muted); }
+  .log-item-loc  { font-size: 12px; color: var(--muted); margin-top: 3px; }
+  .log-item-badges { display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap; }
+  .badge {
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+  }
+  .badge-good    { background: #eafaf1; color: var(--green); }
+  .badge-fair    { background: #fef9e7; color: var(--orange); }
+  .badge-faulty  { background: #fdedec; color: var(--red); }
+  .badge-full    { background: #eafaf1; color: var(--green); }
+  .badge-partial { background: #fef9e7; color: var(--orange); }
+  .badge-empty   { background: #fdedec; color: var(--red); }
+  .badge-dept    { background: #eaf0fb; color: #2471a3; }
+
+  .log-detail {
+    display: none;
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid var(--border);
+    font-size: 12px;
+    color: var(--muted);
+  }
+  .log-detail.open { display: block; }
+  .log-detail-row { margin-bottom: 4px; }
+  .log-detail-row span { color: var(--text); font-weight: 500; }
+
+  /* ── ASSET LIST VIEW ── */
+  .asset-filter-row { display: flex; gap: 8px; margin-bottom: 14px; overflow-x: auto; padding-bottom: 4px; }
+  .asset-filter-btn {
+    padding: 7px 14px;
+    border-radius: 20px;
+    border: 1.5px solid var(--border);
+    background: var(--card);
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.15s;
+    color: var(--muted);
+  }
+  .asset-filter-btn.active { background: var(--slate); color: var(--white); border-color: var(--slate); }
+
+  .asset-row {
+    background: var(--card);
+    border-radius: 10px;
+    padding: 12px 16px;
+    box-shadow: var(--shadow);
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    transition: box-shadow 0.15s;
+  }
+  .asset-row:hover { box-shadow: var(--shadow-lg); }
+  .asset-row-icon {
+    width: 38px; height: 38px;
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+    background: #fdedec;
+  }
+  .asset-row-info { flex: 1; min-width: 0; }
+  .asset-row-id   { font-size: 13px; font-weight: 700; }
+  .asset-row-loc  { font-size: 11px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 2px; }
+  .asset-row-type { font-size: 11px; font-weight: 600; }
+  .asset-row-type.DCP    { color: #2471a3; }
+  .asset-row-type.AFFF   { color: #1a7a4a; }
+  .asset-row-type.CO2    { color: #6c3483; }
+  .asset-row-type.TROLLEY { color: var(--orange); }
+  .asset-row-status {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    background: var(--border);
+  }
+  .asset-row-status.inspected { background: var(--green); }
+  .asset-row-status.overdue   { background: var(--red); }
+
+  /* ── PIN MODAL ── */
+  .modal-overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.55);
+    z-index: 200;
+    display: flex; align-items: center; justify-content: center;
+    padding: 20px;
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.2s;
+  }
+  .modal-overlay.open { opacity: 1; pointer-events: all; }
+  .modal-box {
+    background: var(--card);
+    border-radius: 18px;
+    padding: 28px 24px;
+    width: 100%; max-width: 340px;
+    box-shadow: var(--shadow-lg);
+    transform: scale(0.92);
+    transition: transform 0.25s cubic-bezier(0.34,1.56,0.64,1);
+  }
+  .modal-overlay.open .modal-box { transform: scale(1); }
+  .modal-box h3 { font-size: 18px; font-weight: 700; margin-bottom: 6px; }
+  .modal-box p  { font-size: 13px; color: var(--muted); margin-bottom: 20px; }
+  .pin-input {
+    width: 100%;
+    padding: 14px;
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    font-size: 22px;
+    letter-spacing: 6px;
+    text-align: center;
+    font-weight: 700;
+    color: var(--slate);
+    margin-bottom: 16px;
+    transition: border-color 0.2s;
+  }
+  .pin-input:focus { outline: none; border-color: var(--red); }
+  .pin-input.shake { animation: shake 0.4s; border-color: var(--red); }
+  @keyframes shake {
+    0%,100%{transform:translateX(0)} 25%{transform:translateX(-8px)} 75%{transform:translateX(8px)}
+  }
+  .modal-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .modal-btn {
+    padding: 12px;
+    border-radius: 10px;
+    border: none;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .modal-btn.primary { background: var(--red); color: var(--white); }
+  .modal-btn.secondary { background: var(--border); color: var(--text); }
+
+  /* ── ADMIN DASHBOARD PANEL ── */
+  #adminPanel { display: none; }
+  #adminPanel.active { display: block; }
+
+  .admin-header {
+    background: var(--slate);
+    color: var(--white);
+    padding: 14px 18px;
+    border-radius: 12px;
+    margin-bottom: 16px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .admin-header span { font-weight: 700; font-size: 14px; }
+  .admin-logout {
+    background: rgba(255,255,255,0.15);
+    border: none;
+    color: var(--white);
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 12px;
+    cursor: pointer;
+  }
+
+  /* Expiry alert list */
+  .expiry-item {
+    background: var(--card);
+    border-radius: 10px;
+    padding: 12px 16px;
+    margin-bottom: 6px;
+    box-shadow: var(--shadow);
+    display: flex; align-items: center; gap: 12px;
+    border-left: 4px solid var(--border);
+  }
+  .expiry-item.expired   { border-left-color: var(--red); }
+  .expiry-item.due-soon  { border-left-color: var(--amber); }
+  .expiry-item.ok        { border-left-color: var(--green); }
+  .expiry-info { flex: 1; }
+  .expiry-info .exp-id   { font-weight: 700; font-size: 13px; }
+  .expiry-info .exp-loc  { font-size: 11px; color: var(--muted); margin-top: 2px; }
+  .expiry-date { font-size: 12px; font-weight: 600; }
+  .expiry-date.expired  { color: var(--red); }
+  .expiry-date.due-soon { color: var(--amber); }
+
+  /* Loading state */
+  .loading-msg {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--muted);
+    font-size: 14px;
+  }
+  .loading-msg .spin {
+    display: inline-block;
+    width: 28px; height: 28px;
+    border: 3px solid var(--border);
+    border-top-color: var(--red);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin-bottom: 12px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .empty-msg {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--muted);
+    font-size: 14px;
+  }
+  .empty-msg .empty-icon { font-size: 40px; margin-bottom: 10px; }
+
+  /* QR Scanner overlay */
+  #qrOverlay {
+    position: fixed; inset: 0;
+    background: #000;
+    z-index: 300;
+    display: flex; flex-direction: column;
+  }
+  #qrOverlay .qr-header {
+    padding: 16px 20px;
+    display: flex; align-items: center; gap: 14px;
+    background: rgba(0,0,0,0.6);
+  }
+  #qrOverlay .qr-header h3 { color: #fff; font-size: 16px; font-weight: 700; }
+  #qrOverlay .qr-close {
+    margin-left: auto;
+    background: rgba(255,255,255,0.15);
+    border: none; color: #fff;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 13px;
+    cursor: pointer;
+  }
+  #qrVideo { width: 100%; flex: 1; object-fit: cover; }
+  .qr-aim {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 220px; height: 220px;
+    border: 3px solid rgba(255,255,255,0.7);
+    border-radius: 16px;
+    box-shadow: 0 0 0 9999px rgba(0,0,0,0.45);
+  }
+  .qr-aim::before, .qr-aim::after {
+    content: '';
+    position: absolute;
+    width: 30px; height: 30px;
+    border-color: var(--red-light);
+    border-style: solid;
+  }
+  .qr-aim::before { top: -3px; left: -3px; border-width: 4px 0 0 4px; border-radius: 4px 0 0 4px; }
+  .qr-aim::after  { bottom: -3px; right: -3px; border-width: 0 4px 4px 0; border-radius: 0 0 4px 0; }
+  .qr-hint {
+    position: absolute;
+    bottom: 100px; left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0,0,0,0.7);
+    color: #fff;
+    padding: 10px 20px;
+    border-radius: 20px;
+    font-size: 13px;
+    text-align: center;
+    white-space: nowrap;
+  }
+
+  /* Pagination */
+  .pagination { display: flex; gap: 8px; justify-content: center; margin-top: 14px; }
+  .page-btn {
+    padding: 8px 14px;
+    border-radius: 8px;
+    border: 1.5px solid var(--border);
+    background: var(--card);
+    font-size: 13px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.15s;
+  }
+  .page-btn.active { background: var(--red); color: var(--white); border-color: var(--red); }
+  .page-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  .results-count { font-size: 12px; color: var(--muted); text-align: center; margin-bottom: 10px; }
+</style>
+</head>
+<body>
+
+<!-- QR SCANNER OVERLAY -->
+<div id="qrOverlay" style="display:none; position:fixed; inset:0; background:#000; z-index:300; flex-direction:column;">
+  <div class="qr-header">
+    <div class="header-icon" style="width:34px;height:34px;font-size:18px;">🧯</div>
+    <h3>Scan Fire Extinguisher QR</h3>
+    <button class="qr-close" onclick="closeScanner()">✕ Close</button>
+  </div>
+  <div style="position:relative; flex:1; overflow:hidden;">
+    <video id="qrVideo" autoplay playsinline muted style="width:100%;height:100%;object-fit:cover;"></video>
+    <div class="qr-aim"></div>
+    <div class="qr-hint">Point camera at QR code on extinguisher</div>
+  </div>
+</div>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-inner">
+    <div class="header-icon">🧯</div>
+    <div class="header-text">
+      <h1>Fire Extinguisher Management</h1>
+      <p>Malam Jabba Ski Resort — MJSR</p>
+    </div>
+    <button class="header-admin-btn" onclick="openPinModal()">🔒 Admin</button>
+  </div>
+  <div class="nav-tabs">
+    <div class="nav-tab active" onclick="showTab('scan')" id="tab-scan">
+      <span class="tab-icon">📷</span>Inspect
+    </div>
+    <div class="nav-tab" onclick="showTab('assets')" id="tab-assets">
+      <span class="tab-icon">🧯</span>Assets
+    </div>
+    <div class="nav-tab" onclick="showTab('log')" id="tab-log">
+      <span class="tab-icon">📋</span>Log
+    </div>
+    <div class="nav-tab" onclick="showTab('dashboard')" id="tab-dashboard">
+      <span class="tab-icon">📊</span>Dashboard
+    </div>
+  </div>
+</div>
+
+<!-- ════════════ SCAN / INSPECT VIEW ════════════ -->
+<div class="view active" id="view-scan">
+
+  <!-- Hero (shown when no form active) -->
+  <div id="scanHero">
+    <div class="scan-hero">
+      <div class="hero-icon">🧯</div>
+      <h2>Fire Extinguisher Inspection</h2>
+      <p>Scan the QR code on the extinguisher to begin the inspection checklist.</p>
+      <button class="btn-scan" onclick="openScanner()">
+        <span style="font-size:20px;">📷</span> Scan QR Code
+      </button>
+    </div>
+
+    <div class="manual-section">
+      <label>OR SELECT MANUALLY</label>
+      <select class="manual-select" id="manualSelect">
+        <option value="">— Choose extinguisher —</option>
+      </select>
+      <button class="btn-manual" onclick="openManual()">Open Inspection Form</button>
+    </div>
+  </div>
+
+  <!-- Inspection Form (hidden until QR scanned / manual selected) -->
+  <div id="inspectForm" style="display:none;">
+    <button class="btn-back" onclick="showScanHero()">← Back</button>
+    <div class="form-card">
+      <div class="form-card-header">
+        <div class="fe-id" id="formFeId">FE-01</div>
+        <div class="fe-meta" id="formFeLoc">Main Gate Ticket Booth</div>
+        <div style="display:flex; gap:8px; margin-top:8px; flex-wrap:wrap;">
+          <span class="fe-type-badge" id="formFeType">DCP</span>
+          <span class="fe-type-badge" id="formFeDept">SALES</span>
+        </div>
+      </div>
+      <div class="form-body">
+
+        <div class="field-group">
+          <label>CONDITION</label>
+          <div class="condition-btns">
+            <button class="cond-btn" id="cond-good"   onclick="selectCondition('Good')">
+              <span class="cond-icon">✅</span> Good
+            </button>
+            <button class="cond-btn" id="cond-fair"   onclick="selectCondition('Fair')">
+              <span class="cond-icon">⚠️</span> Fair
+            </button>
+            <button class="cond-btn" id="cond-faulty" onclick="selectCondition('Faulty')">
+              <span class="cond-icon">❌</span> Faulty
+            </button>
+          </div>
+        </div>
+
+        <div class="field-group">
+          <label>GAS LEVEL</label>
+          <div class="gas-btns">
+            <button class="gas-btn" id="gas-full"    onclick="selectGas('Full')">
+              <span class="gas-icon">🟢</span> Full
+            </button>
+            <button class="gas-btn" id="gas-partial" onclick="selectGas('Partial')">
+              <span class="gas-icon">🟡</span> Partial
+            </button>
+            <button class="gas-btn" id="gas-empty"   onclick="selectGas('Empty')">
+              <span class="gas-icon">🔴</span> Empty
+            </button>
+          </div>
+        </div>
+
+        <div class="expiry-row">
+          <div class="field-group">
+            <label>LAST INSPECTED</label>
+            <input type="date" class="input-field" id="inspectionDate">
+          </div>
+          <div class="field-group">
+            <label>NEXT EXPIRY</label>
+            <input type="date" class="input-field" id="expiryDate">
+          </div>
+        </div>
+
+        <div class="field-group">
+          <label>INSPECTOR NAME</label>
+          <input type="text" class="input-field" id="inspectorName" placeholder="Enter your name">
+        </div>
+
+        <div class="field-group">
+          <label>COMMENTS / OBSERVATIONS</label>
+          <textarea class="input-field" id="comments" placeholder="Any faults, maintenance needed, notes..."></textarea>
+        </div>
+
+        <button class="btn-submit" id="submitBtn" onclick="submitInspection()">
+          <span>✓</span> Submit Inspection
+        </button>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════ ASSETS VIEW ════════════ -->
+<div class="view" id="view-assets">
+  <div class="asset-filter-row" id="assetFilterRow">
+    <button class="asset-filter-btn active" onclick="filterAssets('ALL')" data-filter="ALL">All (38)</button>
+    <button class="asset-filter-btn" onclick="filterAssets('SALES')" data-filter="SALES">Sales</button>
+    <button class="asset-filter-btn" onclick="filterAssets('RESTAURANT')" data-filter="RESTAURANT">Restaurant</button>
+    <button class="asset-filter-btn" onclick="filterAssets('ADMINISTRATION')" data-filter="ADMINISTRATION">Admin</button>
+    <button class="asset-filter-btn" onclick="filterAssets('TECHNICAL')" data-filter="TECHNICAL">Technical</button>
+  </div>
+  <div id="assetList"></div>
+</div>
+
+<!-- ════════════ LOG VIEW ════════════ -->
+<div class="view" id="view-log">
+  <div class="filter-row">
+    <select class="input-field" id="logFilterDept" onchange="loadLog()">
+      <option value="">All Departments</option>
+      <option value="SALES">Sales</option>
+      <option value="RESTAURANT">Restaurant</option>
+      <option value="ADMINISTRATION">Administration</option>
+      <option value="TECHNICAL">Technical</option>
+    </select>
+    <select class="input-field" id="logFilterCondition" onchange="loadLog()">
+      <option value="">All Conditions</option>
+      <option value="Good">Good</option>
+      <option value="Fair">Fair</option>
+      <option value="Faulty">Faulty</option>
+    </select>
+  </div>
+  <div id="logList">
+    <div class="loading-msg"><div class="spin"></div><br>Loading inspection log...</div>
+  </div>
+  <div class="pagination" id="logPagination"></div>
+</div>
+
+<!-- ════════════ DASHBOARD VIEW ════════════ -->
+<div class="view" id="view-dashboard">
+
+  <!-- Public summary always visible -->
+  <div id="publicDashboard">
+    <div class="section-title">FLEET OVERVIEW</div>
+    <div class="stats-grid" id="dashStats">
+      <div class="stat-card slate"><div class="stat-num">38</div><div class="stat-lbl">Total Units</div></div>
+      <div class="stat-card green"><div class="stat-num" id="ds-inspected">–</div><div class="stat-lbl">Inspected</div></div>
+      <div class="stat-card red"><div class="stat-num" id="ds-faulty">–</div><div class="stat-lbl">Faulty</div></div>
+      <div class="stat-card amber"><div class="stat-num" id="ds-expiring">–</div><div class="stat-lbl">Expiring Soon</div></div>
+    </div>
+
+    <div class="section-title" style="margin-top:20px;">BY DEPARTMENT</div>
+    <div id="deptBars"></div>
+  </div>
+
+  <!-- Admin panel (PIN protected) -->
+  <div id="adminPanel">
+    <div class="admin-header">
+      <span>🔐 Admin Panel</span>
+      <button class="admin-logout" onclick="logoutAdmin()">Log Out</button>
+    </div>
+    <div class="section-title">EXPIRY ALERTS</div>
+    <div id="expiryList">
+      <div class="loading-msg"><div class="spin"></div><br>Loading expiry data...</div>
+    </div>
+  </div>
+
+</div>
+
+<!-- PIN MODAL -->
+<div class="modal-overlay" id="pinModal">
+  <div class="modal-box">
+    <h3>🔐 Admin Access</h3>
+    <p>Enter PIN to access the admin dashboard</p>
+    <input type="password" class="pin-input" id="pinInput" maxlength="6" placeholder="••••"
+           onkeydown="if(event.key==='Enter') checkPin()">
+    <div class="modal-btns">
+      <button class="modal-btn secondary" onclick="closePinModal()">Cancel</button>
+      <button class="modal-btn primary" onclick="checkPin()">Enter</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ── CONFIG ──────────────────────────────────────────────────────────────────
+const GAS_URL = 'YOUR_GAS_URL_HERE'; // Replace with deployed Apps Script URL
+const ADMIN_PIN = '1234';
+const PAGE_SIZE = 25;
+
+// ── ASSET DATA ───────────────────────────────────────────────────────────────
+const ASSETS = [
+  {id:'FE-01',type:'DCP',   dept:'SALES',          loc:'Main Gate Ticket Booth'},
+  {id:'FE-02',type:'DCP',   dept:'SALES',          loc:'Skishop entrance inside'},
+  {id:'FE-03',type:'AFFF',  dept:'SALES',          loc:'Skishop entrance inside'},
+  {id:'FE-04',type:'CO2',   dept:'RESTAURANT',     loc:'Food store Inside'},
+  {id:'FE-05',type:'DCP',   dept:'RESTAURANT',     loc:'Food store Inside'},
+  {id:'FE-06',type:'DCP',   dept:'RESTAURANT',     loc:'Lazeez Restaurant gate near kitchen'},
+  {id:'FE-07',type:'CO2',   dept:'RESTAURANT',     loc:'Lazeez Restaurant gate near kitchen'},
+  {id:'FE-08',type:'DCP',   dept:'RESTAURANT',     loc:'Tandoor'},
+  {id:'FE-09',type:'DCP',   dept:'RESTAURANT',     loc:'New Kitchen'},
+  {id:'FE-10',type:'DCP',   dept:'RESTAURANT',     loc:'Nescafe food truck on Beginner slope'},
+  {id:'FE-11',type:'CO2',   dept:'RESTAURANT',     loc:'Nescafe food truck'},
+  {id:'FE-12',type:'DCP',   dept:'RESTAURANT',     loc:'Nescafe food truck'},
+  {id:'FE-13',type:'DCP',   dept:'RESTAURANT',     loc:'Top station Restaurant inside'},
+  {id:'FE-14',type:'CO2',   dept:'RESTAURANT',     loc:'Top station Restaurant inside'},
+  {id:'FE-15',type:'DCP',   dept:'ADMINISTRATION', loc:'Challets Security Post inside'},
+  {id:'FE-16',type:'CO2',   dept:'ADMINISTRATION', loc:'Challets Rooms Outside'},
+  {id:'FE-17',type:'DCP',   dept:'ADMINISTRATION', loc:'Doctor Clinic Outside'},
+  {id:'FE-18',type:'DCP Trolley',dept:'TECHNICAL', loc:'Chairlift control room front'},
+  {id:'FE-19',type:'DCP',   dept:'TECHNICAL',      loc:'Chairlift Store outside on wall'},
+  {id:'FE-20',type:'CO2',   dept:'TECHNICAL',      loc:'Chairlift Store outside on wall'},
+  {id:'FE-21',type:'AFFF',  dept:'TECHNICAL',      loc:'Chairlift Store outside on wall'},
+  {id:'FE-22',type:'DCP',   dept:'TECHNICAL',      loc:'Chairlift main motor cabin outside'},
+  {id:'FE-23',type:'CO2',   dept:'TECHNICAL',      loc:'Chairlift main motor cabin outside'},
+  {id:'FE-24',type:'DCP',   dept:'TECHNICAL',      loc:'Snow making Pump House Inside'},
+  {id:'FE-25',type:'DCP',   dept:'TECHNICAL',      loc:'Pistenbully Room Inside'},
+  {id:'FE-26',type:'CO2',   dept:'TECHNICAL',      loc:'Pistenbully Room Inside'},
+  {id:'FE-27',type:'DCP',   dept:'TECHNICAL',      loc:'Chairlift top station Platform'},
+  {id:'FE-28',type:'DCP',   dept:'TECHNICAL',      loc:'Generator room UPS Room Inside'},
+  {id:'FE-29',type:'DCP',   dept:'TECHNICAL',      loc:'Generator room UPS Room Outside'},
+  {id:'FE-30',type:'CO2',   dept:'TECHNICAL',      loc:'Generator room Electrical Store Front'},
+  {id:'FE-31',type:'DCP Trolley',dept:'TECHNICAL', loc:'Generator room Electrical Store Front'},
+  {id:'FE-32',type:'DCP',   dept:'TECHNICAL',      loc:'Generator room Transformer room Front'},
+  {id:'FE-33',type:'DCP',   dept:'TECHNICAL',      loc:'Generator room 500 KVA Genset Front'},
+  {id:'FE-34',type:'DCP',   dept:'TECHNICAL',      loc:'Generator room LT Room Office'},
+  {id:'FE-35',type:'DCP',   dept:'TECHNICAL',      loc:'Generator room Emergency'},
+  {id:'FE-36',type:'DCP',   dept:'TECHNICAL',      loc:'Zipline Top Station'},
+  {id:'FE-37',type:'DCP',   dept:'TECHNICAL',      loc:'Zipline Landing Station (PC Top)'},
+  {id:'FE-38',type:'DCP',   dept:'TECHNICAL',      loc:'Giant Swing Container (PC backside)'},
+];
+
+// ── STATE ────────────────────────────────────────────────────────────────────
+let selectedCondition = '';
+let selectedGas = '';
+let currentFeId = '';
+let isAdminUnlocked = false;
+let logPage = 1;
+let allLogData = [];
+let currentAssetFilter = 'ALL';
+let qrStream = null;
+let qrAnimFrame = null;
+
+// ── INIT ─────────────────────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  // Populate manual select
+  const sel = document.getElementById('manualSelect');
+  ASSETS.forEach(a => {
+    const opt = document.createElement('option');
+    opt.value = a.id;
+    opt.textContent = `${a.id} — ${a.type} — ${a.loc}`;
+    sel.appendChild(opt);
+  });
+
+  // Set today's date as default inspection date
+  const today = new Date().toISOString().split('T')[0];
+  document.getElementById('inspectionDate').value = today;
+
+  // Pre-calculate next year for expiry default
+  const nextYear = new Date();
+  nextYear.setFullYear(nextYear.getFullYear() + 1);
+  document.getElementById('expiryDate').value = nextYear.toISOString().split('T')[0];
+
+  renderAssetList('ALL');
+  loadDashboard();
+
+  // Handle QR param in URL (when scanned from a QR code label)
+  const params = new URLSearchParams(window.location.search);
+  const feId = params.get('fe');
+  if (feId) {
+    openInspectForm(feId.toUpperCase());
+    showTab('scan');
+  }
+});
+
+// ── TAB NAVIGATION ────────────────────────────────────────────────────────────
+function showTab(tab) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('view-' + tab).classList.add('active');
+  document.getElementById('tab-' + tab).classList.add('active');
+  if (tab === 'log') loadLog();
+  if (tab === 'dashboard') loadDashboard();
+}
+
+// ── SCAN HERO / FORM TOGGLE ───────────────────────────────────────────────────
+function showScanHero() {
+  document.getElementById('scanHero').style.display = 'block';
+  document.getElementById('inspectForm').style.display = 'none';
+  selectedCondition = '';
+  selectedGas = '';
+  currentFeId = '';
+}
+
+function openManual() {
+  const val = document.getElementById('manualSelect').value;
+  if (!val) { showToast('Please select an extinguisher', 'error'); return; }
+  openInspectForm(val);
+}
+
+function openInspectForm(feId) {
+  const asset = ASSETS.find(a => a.id === feId);
+  if (!asset) { showToast('Extinguisher not found: ' + feId, 'error'); return; }
+
+  currentFeId = feId;
+  selectedCondition = '';
+  selectedGas = '';
+
+  document.getElementById('formFeId').textContent  = asset.id;
+  document.getElementById('formFeLoc').textContent = asset.loc;
+  document.getElementById('formFeType').textContent = asset.type;
+  document.getElementById('formFeDept').textContent = asset.dept;
+  document.getElementById('comments').value = '';
+  document.getElementById('inspectorName').value = '';
+
+  // Reset buttons
+  ['good','fair','faulty'].forEach(c => {
+    document.getElementById('cond-' + c).className = 'cond-btn';
+  });
+  ['full','partial','empty'].forEach(g => {
+    document.getElementById('gas-' + g).className = 'gas-btn';
+  });
+
+  const today = new Date().toISOString().split('T')[0];
+  document.getElementById('inspectionDate').value = today;
+  const nextYear = new Date();
+  nextYear.setFullYear(nextYear.getFullYear() + 1);
+  document.getElementById('expiryDate').value = nextYear.toISOString().split('T')[0];
+
+  document.getElementById('scanHero').style.display = 'none';
+  document.getElementById('inspectForm').style.display = 'block';
+  window.scrollTo(0, 0);
+}
+
+// ── CONDITION / GAS SELECTION ─────────────────────────────────────────────────
+function selectCondition(val) {
+  selectedCondition = val;
+  const map = { Good: 'good', Fair: 'fair', Faulty: 'faulty' };
+  const clsMap = { Good: 'selected-good', Fair: 'selected-fair', Faulty: 'selected-faulty' };
+  ['good','fair','faulty'].forEach(c => {
+    document.getElementById('cond-' + c).className = 'cond-btn';
+  });
+  document.getElementById('cond-' + map[val]).className = 'cond-btn ' + clsMap[val];
+}
+
+function selectGas(val) {
+  selectedGas = val;
+  const map = { Full: 'full', Partial: 'partial', Empty: 'empty' };
+  const clsMap = { Full: 'selected-full', Partial: 'selected-partial', Empty: 'selected-empty' };
+  ['full','partial','empty'].forEach(g => {
+    document.getElementById('gas-' + g).className = 'gas-btn';
+  });
+  document.getElementById('gas-' + map[val]).className = 'gas-btn ' + clsMap[val];
+}
+
+// ── SUBMISSION ────────────────────────────────────────────────────────────────
+async function submitInspection() {
+  if (!selectedCondition) { showToast('Please select Condition', 'error'); return; }
+  if (!selectedGas)        { showToast('Please select Gas Level', 'error'); return; }
+  const inspector = document.getElementById('inspectorName').value.trim();
+  if (!inspector)          { showToast('Please enter Inspector Name', 'error'); return; }
+
+  const asset = ASSETS.find(a => a.id === currentFeId);
+  const payload = {
+    action:         'submitInspection',
+    feId:           currentFeId,
+    feType:         asset.type,
+    department:     asset.dept,
+    location:       asset.loc,
+    condition:      selectedCondition,
+    gasLevel:       selectedGas,
+    inspectionDate: document.getElementById('inspectionDate').value,
+    expiryDate:     document.getElementById('expiryDate').value,
+    inspector:      inspector,
+    comments:       document.getElementById('comments').value.trim(),
+    timestamp:      new Date().toISOString(),
+  };
+
+  const btn = document.getElementById('submitBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spin" style="width:18px;height:18px;border-width:2px;display:inline-block;border-color:#fff3;border-top-color:#fff;border-radius:50%;animation:spin 0.8s linear infinite;"></span> Submitting...';
+
+  try {
+    const resp = await fetch(GAS_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain' },
+      body: JSON.stringify(payload),
+    });
+    const data = await resp.json();
+    if (data.status === 'ok') {
+      showToast('✓ Inspection submitted successfully');
+      showScanHero();
+    } else {
+      throw new Error(data.message || 'Unknown error');
+    }
+  } catch (err) {
+    showToast('Error: ' + err.message, 'error');
+    btn.disabled = false;
+    btn.innerHTML = '<span>✓</span> Submit Inspection';
+  }
+}
+
+// ── ASSET LIST ────────────────────────────────────────────────────────────────
+function filterAssets(dept) {
+  currentAssetFilter = dept;
+  document.querySelectorAll('.asset-filter-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.filter === dept);
+  });
+  renderAssetList(dept);
+}
+
+function renderAssetList(dept) {
+  const list = document.getElementById('assetList');
+  const filtered = dept === 'ALL' ? ASSETS : ASSETS.filter(a => a.dept === dept);
+  const typeIconMap = { 'DCP': '🔴', 'AFFF': '🟢', 'CO2': '⚫', 'DCP Trolley': '🛒' };
+  const typeClass  = a => a.type === 'DCP Trolley' ? 'TROLLEY' : a.type.replace(/\s/g,'');
+
+  list.innerHTML = filtered.map(a => `
+    <div class="asset-row" onclick="openInspectForm('${a.id}'); showTab('scan');">
+      <div class="asset-row-icon">${typeIconMap[a.type] || '🧯'}</div>
+      <div class="asset-row-info">
+        <div class="asset-row-id">${a.id}</div>
+        <div class="asset-row-loc">${a.loc}</div>
+        <div class="asset-row-type ${typeClass(a)}">${a.type}</div>
+      </div>
+      <div style="text-align:right; font-size:11px; color:var(--muted);">${a.dept.charAt(0)+a.dept.slice(1).toLowerCase()}</div>
+    </div>
+  `).join('');
+}
+
+// ── LOG ───────────────────────────────────────────────────────────────────────
+async function loadLog() {
+  const listEl = document.getElementById('logList');
+  listEl.innerHTML = '<div class="loading-msg"><div class="spin"></div><br>Loading...</div>';
+  document.getElementById('logPagination').innerHTML = '';
+
+  const dept      = document.getElementById('logFilterDept').value;
+  const condition = document.getElementById('logFilterCondition').value;
+
+  try {
+    const resp = await fetch(GAS_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain' },
+      body: JSON.stringify({ action: 'getLog', dept, condition }),
+    });
+    const data = await resp.json();
+    allLogData = data.rows || [];
+    logPage = 1;
+    renderLog();
+  } catch(err) {
+    listEl.innerHTML = `<div class="empty-msg"><div class="empty-icon">⚠️</div>Could not load log.<br><small>${err.message}</small></div>`;
+  }
+}
+
+function renderLog() {
+  const listEl = document.getElementById('logList');
+  const pagEl  = document.getElementById('logPagination');
+  if (!allLogData.length) {
+    listEl.innerHTML = '<div class="empty-msg"><div class="empty-icon">📋</div>No inspections recorded yet.</div>';
+    pagEl.innerHTML = '';
+    return;
+  }
+
+  const totalPages = Math.ceil(allLogData.length / PAGE_SIZE);
+  const start = (logPage - 1) * PAGE_SIZE;
+  const pageData = allLogData.slice(start, start + PAGE_SIZE);
+
+  const condBadge = c => `<span class="badge badge-${(c||'').toLowerCase()}">${c}</span>`;
+  const gasBadge  = g => `<span class="badge badge-${(g||'').toLowerCase()}">${g}</span>`;
+
+  listEl.innerHTML = `<div class="results-count">${allLogData.length} records</div>` +
+    pageData.map((r, i) => `
+    <div class="log-item ${(r.condition||'').toLowerCase()}" onclick="toggleLogDetail(${start+i})">
+      <div class="log-item-top">
+        <div>
+          <div class="log-item-id">${r.feId || ''}</div>
+          <div class="log-item-loc">${r.location || ''}</div>
+        </div>
+        <div class="log-item-date">${r.inspectionDate || ''}</div>
+      </div>
+      <div class="log-item-badges">
+        ${condBadge(r.condition)}
+        ${gasBadge(r.gasLevel)}
+        <span class="badge badge-dept">${r.department || ''}</span>
+      </div>
+      <div class="log-detail" id="log-detail-${start+i}">
+        <div class="log-detail-row">Inspector: <span>${r.inspector || '—'}</span></div>
+        <div class="log-detail-row">Type: <span>${r.feType || '—'}</span></div>
+        <div class="log-detail-row">Next Expiry: <span>${r.expiryDate || '—'}</span></div>
+        <div class="log-detail-row">Comments: <span>${r.comments || '—'}</span></div>
+      </div>
+    </div>
+  `).join('');
+
+  // Pagination
+  if (totalPages > 1) {
+    let pag = `<button class="page-btn" onclick="goLogPage(${logPage-1})" ${logPage===1?'disabled':''}>‹</button>`;
+    for (let p = 1; p <= totalPages; p++) {
+      pag += `<button class="page-btn ${p===logPage?'active':''}" onclick="goLogPage(${p})">${p}</button>`;
+    }
+    pag += `<button class="page-btn" onclick="goLogPage(${logPage+1})" ${logPage===totalPages?'disabled':''}>›</button>`;
+    pagEl.innerHTML = pag;
+  } else {
+    pagEl.innerHTML = '';
+  }
+}
+
+function toggleLogDetail(idx) {
+  const el = document.getElementById('log-detail-' + idx);
+  if (el) el.classList.toggle('open');
+}
+
+function goLogPage(p) {
+  logPage = p;
+  renderLog();
+  window.scrollTo(0,0);
+}
+
+// ── DASHBOARD ─────────────────────────────────────────────────────────────────
+async function loadDashboard() {
+  try {
+    const resp = await fetch(GAS_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain' },
+      body: JSON.stringify({ action: 'getDashboard' }),
+    });
+    const data = await resp.json();
+    renderDashboard(data);
+  } catch(err) {
+    // Silent fail on dashboard — basic counts still shown
+  }
+}
+
+function renderDashboard(data) {
+  if (!data) return;
+  const d = data.summary || {};
+  if (d.inspected !== undefined) document.getElementById('ds-inspected').textContent = d.inspected;
+  if (d.faulty    !== undefined) document.getElementById('ds-faulty').textContent    = d.faulty;
+  if (d.expiring  !== undefined) document.getElementById('ds-expiring').textContent  = d.expiring;
+
+  // Dept bars
+  const deptData = data.byDept || {};
+  const depts = ['SALES','RESTAURANT','ADMINISTRATION','TECHNICAL'];
+  const totals = { SALES:3, RESTAURANT:11, ADMINISTRATION:3, TECHNICAL:21 };
+  const deptNames = { SALES:'Sales', RESTAURANT:'Restaurant', ADMINISTRATION:'Administration', TECHNICAL:'Technical' };
+  const barsEl = document.getElementById('deptBars');
+  barsEl.innerHTML = depts.map(dept => {
+    const inspected = deptData[dept] || 0;
+    const total     = totals[dept];
+    const pct       = total ? Math.round((inspected / total) * 100) : 0;
+    return `
+      <div class="dept-bar-row">
+        <div class="dept-bar-label">
+          <span class="dept-name">${deptNames[dept]}</span>
+          <span class="dept-pct">${inspected}/${total} inspected (${pct}%)</span>
+        </div>
+        <div class="dept-bar-track"><div class="dept-bar-fill" style="width:${pct}%"></div></div>
+      </div>
+    `;
+  }).join('');
+
+  // Admin expiry list
+  if (isAdminUnlocked && data.expiry) {
+    renderExpiryList(data.expiry);
+  }
+}
+
+function renderExpiryList(expiryRows) {
+  const el = document.getElementById('expiryList');
+  if (!expiryRows || !expiryRows.length) {
+    el.innerHTML = '<div class="empty-msg"><div class="empty-icon">✅</div>No expiry alerts.</div>';
+    return;
+  }
+  const today = new Date();
+  el.innerHTML = expiryRows.map(r => {
+    const exp = new Date(r.expiryDate);
+    const diffDays = Math.round((exp - today) / 86400000);
+    let cls = 'ok', label = 'Valid';
+    if (diffDays < 0)   { cls = 'expired';  label = 'EXPIRED'; }
+    else if (diffDays <= 30) { cls = 'due-soon'; label = `${diffDays}d left`; }
+    return `
+      <div class="expiry-item ${cls}">
+        <div class="expiry-info">
+          <div class="exp-id">${r.feId}</div>
+          <div class="exp-loc">${r.location}</div>
+        </div>
+        <div class="expiry-date ${cls}">${label}</div>
+      </div>
+    `;
+  }).join('');
+}
+
+// ── PIN / ADMIN ───────────────────────────────────────────────────────────────
+function openPinModal() {
+  if (isAdminUnlocked) { showTab('dashboard'); return; }
+  document.getElementById('pinInput').value = '';
+  document.getElementById('pinModal').classList.add('open');
+  setTimeout(() => document.getElementById('pinInput').focus(), 200);
+}
+function closePinModal() { document.getElementById('pinModal').classList.remove('open'); }
+function checkPin() {
+  const val = document.getElementById('pinInput').value;
+  if (val === ADMIN_PIN) {
+    isAdminUnlocked = true;
+    closePinModal();
+    document.getElementById('adminPanel').classList.add('active');
+    showTab('dashboard');
+    loadDashboard();
+    showToast('Admin access granted');
+  } else {
+    const inp = document.getElementById('pinInput');
+    inp.classList.add('shake');
+    inp.value = '';
+    setTimeout(() => inp.classList.remove('shake'), 500);
+    showToast('Incorrect PIN', 'error');
+  }
+}
+function logoutAdmin() {
+  isAdminUnlocked = false;
+  document.getElementById('adminPanel').classList.remove('active');
+  showToast('Logged out of admin');
+}
+
+// ── QR SCANNER ────────────────────────────────────────────────────────────────
+async function openScanner() {
+  const overlay = document.getElementById('qrOverlay');
+  overlay.style.display = 'flex';
+  try {
+    qrStream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: 'environment' }
+    });
+    const video = document.getElementById('qrVideo');
+    video.srcObject = qrStream;
+    video.play();
+    scanFrame(video);
+  } catch(err) {
+    closeScanner();
+    showToast('Camera access denied. Use manual selection.', 'error');
+  }
+}
+
+function closeScanner() {
+  document.getElementById('qrOverlay').style.display = 'none';
+  if (qrStream) { qrStream.getTracks().forEach(t => t.stop()); qrStream = null; }
+  if (qrAnimFrame) { cancelAnimationFrame(qrAnimFrame); qrAnimFrame = null; }
+}
+
+function scanFrame(video) {
+  if (!qrStream) return;
+  if (!video.videoWidth) { qrAnimFrame = requestAnimationFrame(() => scanFrame(video)); return; }
+
+  const canvas = document.createElement('canvas');
+  canvas.width  = video.videoWidth;
+  canvas.height = video.videoHeight;
+  const ctx = canvas.getContext('2d');
+  ctx.drawImage(video, 0, 0);
+
+  try {
+    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    // Use BarcodeDetector if available (modern browsers)
+    if ('BarcodeDetector' in window) {
+      const detector = new BarcodeDetector({ formats: ['qr_code'] });
+      detector.detect(canvas).then(codes => {
+        if (codes.length > 0) {
+          const raw = codes[0].rawValue;
+          handleQrResult(raw);
+        } else {
+          qrAnimFrame = requestAnimationFrame(() => scanFrame(video));
+        }
+      });
+    } else {
+      // Fallback: show manual note
+      qrAnimFrame = requestAnimationFrame(() => scanFrame(video));
+    }
+  } catch(e) {
+    qrAnimFrame = requestAnimationFrame(() => scanFrame(video));
+  }
+}
+
+function handleQrResult(raw) {
+  closeScanner();
+  // Expect: https://samsons-digital.github.io/mjsr-fire-ext/?fe=FE-01
+  // or simply "FE-01"
+  let feId = raw;
+  try {
+    const url = new URL(raw);
+    feId = url.searchParams.get('fe') || raw;
+  } catch(e) { /* not a URL, use raw */ }
+
+  feId = feId.trim().toUpperCase();
+  const asset = ASSETS.find(a => a.id === feId);
+  if (asset) {
+    openInspectForm(feId);
+    showTab('scan');
+  } else {
+    showToast('QR not recognised: ' + feId, 'error');
+  }
+}
+
+// ── TOAST ─────────────────────────────────────────────────────────────────────
+let toastTimer;
+function showToast(msg, type='') {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = 'toast' + (type === 'error' ? ' error' : '') + ' show';
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 3200);
+}
+</script>
+</body>
+</html>
