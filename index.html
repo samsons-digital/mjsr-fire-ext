@@ -752,15 +752,12 @@
   }
   .cfg-no-results .cfg-no-icon { font-size: 38px; margin-bottom: 10px; }
 
-  /* Print: hide config tab */
+  /* Print: QR labels full layout + hide everything else */
   @media print {
-    #view-config { display: none !important; }
-  }
-</style>
     .header, .nav-tabs, #scanHero, #inspectForm,
     #view-assets, #view-log, #view-dashboard,
     #view-scan, #qrFilterRow, #pinModal, #toast,
-    #qrOverlay, .btn-manual { display: none !important; }
+    #qrOverlay, .btn-manual, #view-config { display: none !important; }
     #view-qrlabels { display: block !important; padding: 0 !important; }
     #view-qrlabels > div:first-child { display: none !important; }
     #qrGrid { grid-template-columns: repeat(4,1fr) !important; gap: 6px !important; }
@@ -768,6 +765,7 @@
     body { background: #fff; padding: 8px; }
   }
 </style>
+
 </head>
 <body>
 
