@@ -644,6 +644,129 @@
   .page-btn:disabled { opacity: 0.4; cursor: not-allowed; }
 
   .results-count { font-size: 12px; color: var(--muted); text-align: center; margin-bottom: 10px; }
+
+  /* ── QR LABEL CARDS ── */
+  .qr-label-card {
+    background: var(--card);
+    border: 2px solid var(--slate);
+    border-radius: 10px;
+    overflow: hidden;
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+  .qr-label-head {
+    background: var(--red);
+    padding: 5px 10px;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .qr-label-head-text {
+    font-size: 9px; font-weight: 700; color: #fff;
+    text-transform: uppercase; letter-spacing: 0.3px; line-height: 1.2;
+  }
+  .qr-label-body { padding: 8px 10px 10px; }
+  .qr-label-id {
+    font-size: 22px; font-weight: 800;
+    color: var(--slate); letter-spacing: 1px; line-height: 1;
+  }
+  .qr-label-type {
+    display: inline-block;
+    background: var(--slate); color: #fff;
+    padding: 2px 8px; border-radius: 4px;
+    font-size: 10px; font-weight: 700;
+    margin-top: 4px; letter-spacing: 0.3px;
+  }
+  .qr-label-loc  { font-size: 10px; color: #555; margin-top: 5px; line-height: 1.3; min-height: 26px; }
+  .qr-label-dept { font-size: 9px; font-weight: 600; color: #999; text-transform: uppercase; letter-spacing: 0.3px; margin-top: 3px; }
+  .qr-label-qr   { margin-top: 8px; display: flex; align-items: center; justify-content: center; min-height: 100px; }
+  .qr-label-qr img, .qr-label-qr canvas { width: 100% !important; height: auto !important; display: block; }
+  .qr-label-url  { font-size: 7.5px; color: #aaa; text-align: center; margin-top: 4px; word-break: break-all; line-height: 1.2; }
+
+  /* ── CONFIG TAB ── */
+  .cfg-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 14px; gap: 10px; flex-wrap: wrap;
+  }
+  .btn-add-fe {
+    background: var(--red); color: var(--white);
+    border: none; padding: 10px 18px;
+    border-radius: 10px; font-size: 13px; font-weight: 700;
+    cursor: pointer; white-space: nowrap;
+    box-shadow: 0 3px 10px rgba(192,57,43,0.3);
+    transition: background 0.2s;
+  }
+  .btn-add-fe:hover { background: var(--red-dark); }
+
+  .cfg-item {
+    background: var(--card);
+    border-radius: 12px;
+    box-shadow: var(--shadow);
+    margin-bottom: 8px;
+    overflow: hidden;
+    border-left: 4px solid var(--border);
+    transition: box-shadow 0.15s;
+  }
+  .cfg-item:hover { box-shadow: var(--shadow-lg); }
+  .cfg-item-top {
+    display: flex; align-items: center; gap: 12px;
+    padding: 12px 14px;
+    cursor: pointer;
+  }
+  .cfg-item-icon {
+    width: 36px; height: 36px; border-radius: 9px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 17px; flex-shrink: 0; background: #fdedec;
+  }
+  .cfg-item-info { flex: 1; min-width: 0; }
+  .cfg-item-id   { font-size: 14px; font-weight: 700; }
+  .cfg-item-loc  { font-size: 11px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 2px; }
+  .cfg-item-tags { display: flex; gap: 5px; margin-top: 5px; flex-wrap: wrap; }
+  .cfg-tag {
+    padding: 2px 8px; border-radius: 4px;
+    font-size: 10px; font-weight: 700;
+  }
+  .cfg-tag-type { background: #eaf0fb; color: #2471a3; }
+  .cfg-tag-dept { background: #f0f0f0; color: #555; }
+  .cfg-item-actions {
+    display: flex; gap: 6px; padding: 0 14px 12px;
+  }
+  .cfg-btn-edit {
+    flex: 1; padding: 8px; border-radius: 8px;
+    border: 1.5px solid var(--border);
+    background: var(--card); color: var(--slate);
+    font-size: 12px; font-weight: 600; cursor: pointer;
+    transition: all 0.15s;
+  }
+  .cfg-btn-edit:hover { border-color: var(--slate); background: #f5f7fa; }
+  .cfg-btn-delete {
+    flex: 1; padding: 8px; border-radius: 8px;
+    border: 1.5px solid #fad7d4;
+    background: #fff5f5; color: var(--red);
+    font-size: 12px; font-weight: 600; cursor: pointer;
+    transition: all 0.15s;
+  }
+  .cfg-btn-delete:hover { background: #fdedec; border-color: var(--red); }
+
+  .cfg-no-results {
+    text-align: center; padding: 40px 20px;
+    color: var(--muted); font-size: 14px;
+  }
+  .cfg-no-results .cfg-no-icon { font-size: 38px; margin-bottom: 10px; }
+
+  /* Print: hide config tab */
+  @media print {
+    #view-config { display: none !important; }
+  }
+</style>
+    .header, .nav-tabs, #scanHero, #inspectForm,
+    #view-assets, #view-log, #view-dashboard,
+    #view-scan, #qrFilterRow, #pinModal, #toast,
+    #qrOverlay, .btn-manual { display: none !important; }
+    #view-qrlabels { display: block !important; padding: 0 !important; }
+    #view-qrlabels > div:first-child { display: none !important; }
+    #qrGrid { grid-template-columns: repeat(4,1fr) !important; gap: 6px !important; }
+    .qr-label-card { border-width: 1.5px; }
+    body { background: #fff; padding: 8px; }
+  }
 </style>
 </head>
 <body>
@@ -684,6 +807,12 @@
     </div>
     <div class="nav-tab" onclick="showTab('dashboard')" id="tab-dashboard">
       <span class="tab-icon">📊</span>Dashboard
+    </div>
+    <div class="nav-tab" onclick="showTab('qrlabels')" id="tab-qrlabels">
+      <span class="tab-icon">🏷️</span>QR Labels
+    </div>
+    <div class="nav-tab" onclick="showTab('config')" id="tab-config">
+      <span class="tab-icon">⚙️</span>Config
     </div>
   </div>
 </div>
@@ -825,7 +954,7 @@
 
   <!-- Public summary always visible -->
   <div id="publicDashboard">
-    <div class="section-title">FLEET OVERVIEW</div>
+    <div class="section-title">EXTINGUISHER REGISTER SUMMARY</div>
     <div class="stats-grid" id="dashStats">
       <div class="stat-card slate"><div class="stat-num">38</div><div class="stat-lbl">Total Units</div></div>
       <div class="stat-card green"><div class="stat-num" id="ds-inspected">–</div><div class="stat-lbl">Inspected</div></div>
@@ -851,6 +980,122 @@
 
 </div>
 
+<!-- ════════════ QR LABELS VIEW ════════════ -->
+<div class="view" id="view-qrlabels">
+  <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; flex-wrap:wrap; gap:10px;">
+    <div>
+      <div style="font-size:15px; font-weight:700;">QR Label Sheet</div>
+      <div style="font-size:12px; color:var(--muted); margin-top:2px;">38 units — print, cut &amp; laminate</div>
+    </div>
+    <button class="btn-manual" style="width:auto; padding:10px 18px;" onclick="window.print()">🖨️ Print Labels</button>
+  </div>
+
+  <!-- Dept filter -->
+  <div class="asset-filter-row" id="qrFilterRow">
+    <button class="asset-filter-btn active" onclick="filterQR('ALL')" data-qrfilter="ALL">All (38)</button>
+    <button class="asset-filter-btn" onclick="filterQR('SALES')" data-qrfilter="SALES">Sales</button>
+    <button class="asset-filter-btn" onclick="filterQR('RESTAURANT')" data-qrfilter="RESTAURANT">Restaurant</button>
+    <button class="asset-filter-btn" onclick="filterQR('ADMINISTRATION')" data-qrfilter="ADMINISTRATION">Admin</button>
+    <button class="asset-filter-btn" onclick="filterQR('TECHNICAL')" data-qrfilter="TECHNICAL">Technical</button>
+  </div>
+
+  <div id="qrGrid" style="display:grid; grid-template-columns:1fr 1fr; gap:10px;"></div>
+</div>
+
+<!-- ════════════ CONFIG VIEW ════════════ -->
+<div class="view" id="view-config">
+
+  <div class="cfg-header">
+    <div>
+      <div style="font-size:15px; font-weight:700;">Asset Configuration</div>
+      <div style="font-size:12px; color:var(--muted); margin-top:2px;" id="cfgSubtitle">38 units registered</div>
+    </div>
+    <button class="btn-add-fe" onclick="cfgPinGate('add',null)">＋ Add Unit</button>
+  </div>
+
+  <!-- Search + filter -->
+  <div style="display:flex; gap:8px; margin-bottom:12px;">
+    <input type="text" class="input-field" id="cfgSearch" placeholder="🔍  Search ID or location..." oninput="renderConfigList()" style="flex:1;">
+    <select class="input-field" id="cfgDeptFilter" onchange="renderConfigList()" style="width:130px;">
+      <option value="">All Depts</option>
+      <option value="SALES">Sales</option>
+      <option value="RESTAURANT">Restaurant</option>
+      <option value="ADMINISTRATION">Administration</option>
+      <option value="TECHNICAL">Technical</option>
+    </select>
+  </div>
+
+  <div id="cfgList"></div>
+</div>
+
+<!-- ADD / EDIT MODAL -->
+<div class="modal-overlay" id="feModal">
+  <div class="modal-box" style="max-width:380px;">
+    <h3 id="feModalTitle">➕ Add Extinguisher</h3>
+    <p id="feModalSub" style="margin-bottom:18px;">Fill in the details for the new unit.</p>
+
+    <div class="field-group">
+      <label>FE ID <span style="color:var(--red);">*</span></label>
+      <input type="text" class="input-field" id="feModalId" placeholder="e.g. FE-39" style="text-transform:uppercase;">
+      <div style="font-size:11px; color:var(--muted); margin-top:4px;" id="feIdHint"></div>
+    </div>
+    <div class="field-group">
+      <label>TYPE <span style="color:var(--red);">*</span></label>
+      <select class="input-field" id="feModalType">
+        <option value="DCP">DCP</option>
+        <option value="CO2">CO2</option>
+        <option value="AFFF">AFFF</option>
+        <option value="DCP Trolley">DCP Trolley</option>
+      </select>
+    </div>
+    <div class="field-group">
+      <label>DEPARTMENT <span style="color:var(--red);">*</span></label>
+      <select class="input-field" id="feModalDept">
+        <option value="SALES">Sales</option>
+        <option value="RESTAURANT">Restaurant</option>
+        <option value="ADMINISTRATION">Administration</option>
+        <option value="TECHNICAL">Technical</option>
+      </select>
+    </div>
+    <div class="field-group">
+      <label>LOCATION <span style="color:var(--red);">*</span></label>
+      <input type="text" class="input-field" id="feModalLoc" placeholder="e.g. Main Gate inside">
+    </div>
+
+    <div class="modal-btns" style="margin-top:18px;">
+      <button class="modal-btn secondary" onclick="closeFeModal()">Cancel</button>
+      <button class="modal-btn primary" id="feModalSaveBtn" onclick="saveFeModal()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- DELETE CONFIRM MODAL -->
+<div class="modal-overlay" id="deleteModal">
+  <div class="modal-box" style="max-width:340px;">
+    <h3>🗑️ Remove Unit</h3>
+    <p id="deleteModalMsg" style="margin-bottom:20px;"></p>
+    <div class="modal-btns">
+      <button class="modal-btn secondary" onclick="closeDeleteModal()">Cancel</button>
+      <button class="modal-btn" style="background:var(--red);color:#fff;" onclick="confirmDelete()">Remove</button>
+    </div>
+  </div>
+</div>
+
+<!-- CONFIG PIN MODAL -->
+<div class="modal-overlay" id="cfgPinModal">
+  <div class="modal-box" style="max-width:320px;">
+    <h3>🔒 Config Access</h3>
+    <p style="margin-bottom:18px;">Enter PIN to make changes to the asset register.</p>
+    <input type="password" class="pin-input" id="cfgPinInput" maxlength="6" placeholder="••••"
+           onkeydown="if(event.key==='Enter') checkCfgPin()">
+    <div style="font-size:11px; color:var(--muted); text-align:center; margin-bottom:12px;" id="cfgPinHint"></div>
+    <div class="modal-btns">
+      <button class="modal-btn secondary" onclick="closeCfgPinModal()">Cancel</button>
+      <button class="modal-btn primary" onclick="checkCfgPin()">Enter</button>
+    </div>
+  </div>
+</div>
+
 <!-- PIN MODAL -->
 <div class="modal-overlay" id="pinModal">
   <div class="modal-box">
@@ -868,14 +1113,15 @@
 <!-- TOAST -->
 <div class="toast" id="toast"></div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script>
 // ── CONFIG ──────────────────────────────────────────────────────────────────
-const GAS_URL = 'https://script.google.com/macros/s/AKfycbyKJStx0OfvjQdjQWoBwmUfto9S0mHfViNphdWy--Xd2G10d2HThgwOqOTazTKbz-ST/exec'; // Replace with deployed Apps Script URL
+const GAS_URL = 'YOUR_GAS_URL_HERE'; // Replace with deployed Apps Script URL
 const ADMIN_PIN = '1234';
 const PAGE_SIZE = 25;
 
-// ── ASSET DATA ───────────────────────────────────────────────────────────────
-const ASSETS = [
+// ── ASSET DATA (seed) ────────────────────────────────────────────────────────
+const ASSET_SEED = [
   {id:'FE-01',type:'DCP',   dept:'SALES',          loc:'Main Gate Ticket Booth'},
   {id:'FE-02',type:'DCP',   dept:'SALES',          loc:'Skishop entrance inside'},
   {id:'FE-03',type:'AFFF',  dept:'SALES',          loc:'Skishop entrance inside'},
@@ -916,7 +1162,19 @@ const ASSETS = [
   {id:'FE-38',type:'DCP',   dept:'TECHNICAL',      loc:'Giant Swing Container (PC backside)'},
 ];
 
-// ── STATE ────────────────────────────────────────────────────────────────────
+// ── LIVE ASSET LIST (persisted in localStorage) ──────────────────────────────
+// On first load uses ASSET_SEED; subsequent loads use saved list.
+function loadAssets() {
+  try {
+    const saved = localStorage.getItem('mjsr_fe_assets');
+    if (saved) return JSON.parse(saved);
+  } catch(e) {}
+  return ASSET_SEED.map(a => ({...a}));
+}
+function saveAssets() {
+  try { localStorage.setItem('mjsr_fe_assets', JSON.stringify(ASSETS)); } catch(e) {}
+}
+let ASSETS = loadAssets();
 let selectedCondition = '';
 let selectedGas = '';
 let currentFeId = '';
@@ -929,14 +1187,7 @@ let qrAnimFrame = null;
 
 // ── INIT ─────────────────────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
-  // Populate manual select
-  const sel = document.getElementById('manualSelect');
-  ASSETS.forEach(a => {
-    const opt = document.createElement('option');
-    opt.value = a.id;
-    opt.textContent = `${a.id} — ${a.type} — ${a.loc}`;
-    sel.appendChild(opt);
-  });
+  refreshManualSelect();
 
   // Set today's date as default inspection date
   const today = new Date().toISOString().split('T')[0];
@@ -949,6 +1200,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   renderAssetList('ALL');
   loadDashboard();
+  renderConfigList();
 
   // Handle QR param in URL (when scanned from a QR code label)
   const params = new URLSearchParams(window.location.search);
@@ -959,14 +1211,41 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 
+function refreshManualSelect() {
+  const sel = document.getElementById('manualSelect');
+  sel.innerHTML = '<option value="">— Choose extinguisher —</option>';
+  ASSETS.forEach(a => {
+    const opt = document.createElement('option');
+    opt.value = a.id;
+    opt.textContent = `${a.id} — ${a.type} — ${a.loc}`;
+    sel.appendChild(opt);
+  });
+}
+
+// Called after any asset add/edit/delete to keep all tabs in sync
+function refreshAllViews() {
+  saveAssets();
+  refreshManualSelect();
+  renderAssetList(currentAssetFilter);
+  renderConfigList();
+  // Force QR grid to re-render next time that tab is visited
+  document.getElementById('qrGrid').innerHTML = '';
+  // Update QR filter counts
+  refreshQRFilterCounts();
+  // Update config subtitle
+  document.getElementById('cfgSubtitle').textContent = ASSETS.length + ' units registered';
+}
+
 // ── TAB NAVIGATION ────────────────────────────────────────────────────────────
 function showTab(tab) {
   document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
   document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
   document.getElementById('view-' + tab).classList.add('active');
   document.getElementById('tab-' + tab).classList.add('active');
-  if (tab === 'log') loadLog();
+  if (tab === 'log')       loadLog();
   if (tab === 'dashboard') loadDashboard();
+  if (tab === 'qrlabels')  renderQRGrid();
+  if (tab === 'config')    renderConfigList();
 }
 
 // ── SCAN HERO / FORM TOGGLE ───────────────────────────────────────────────────
@@ -1383,6 +1662,224 @@ function handleQrResult(raw) {
   }
 }
 
+// ── QR FILTER COUNT REFRESH ───────────────────────────────────────────────────
+function refreshQRFilterCounts() {
+  const depts = ['SALES','RESTAURANT','ADMINISTRATION','TECHNICAL'];
+  const deptLabels = { SALES:'Sales', RESTAURANT:'Restaurant', ADMINISTRATION:'Administration', TECHNICAL:'Technical' };
+  document.querySelector('[data-qrfilter="ALL"]').textContent = `All (${ASSETS.length})`;
+  depts.forEach(d => {
+    const btn = document.querySelector(`[data-qrfilter="${d}"]`);
+    if (btn) btn.textContent = deptLabels[d];
+  });
+}
+
+// ── CONFIG PIN GATE ───────────────────────────────────────────────────────────
+let cfgUnlocked = false;
+let cfgPendingAction = null;  // { action: 'add'|'edit'|'delete', id: feId|null }
+
+function cfgPinGate(action, id) {
+  if (cfgUnlocked) {
+    dispatchCfgAction(action, id);
+    return;
+  }
+  cfgPendingAction = { action, id };
+  document.getElementById('cfgPinInput').value = '';
+  document.getElementById('cfgPinHint').textContent = '';
+  document.getElementById('cfgPinModal').classList.add('open');
+  setTimeout(() => document.getElementById('cfgPinInput').focus(), 200);
+}
+
+function checkCfgPin() {
+  const val = document.getElementById('cfgPinInput').value;
+  if (val === ADMIN_PIN) {
+    cfgUnlocked = true;
+    closeCfgPinModal();
+    if (cfgPendingAction) {
+      dispatchCfgAction(cfgPendingAction.action, cfgPendingAction.id);
+      cfgPendingAction = null;
+    }
+    // Auto-lock after 5 minutes of inactivity
+    clearTimeout(cfgLockTimer);
+    cfgLockTimer = setTimeout(() => { cfgUnlocked = false; }, 5 * 60 * 1000);
+  } else {
+    const inp = document.getElementById('cfgPinInput');
+    inp.classList.add('shake');
+    inp.value = '';
+    document.getElementById('cfgPinHint').textContent = 'Incorrect PIN — try again';
+    setTimeout(() => inp.classList.remove('shake'), 500);
+  }
+}
+let cfgLockTimer = null;
+
+function closeCfgPinModal() {
+  document.getElementById('cfgPinModal').classList.remove('open');
+  cfgPendingAction = null;
+}
+
+function dispatchCfgAction(action, id) {
+  if (action === 'add')    openAddModal();
+  if (action === 'edit')   openEditModal(id);
+  if (action === 'delete') openDeleteModal(id);
+}
+
+// ── CONFIG: RENDER LIST ───────────────────────────────────────────────────────
+function renderConfigList() {
+  const search = (document.getElementById('cfgSearch')?.value || '').toLowerCase();
+  const deptF  = document.getElementById('cfgDeptFilter')?.value || '';
+
+  const filtered = ASSETS.filter(a => {
+    const matchSearch = !search ||
+      a.id.toLowerCase().includes(search) ||
+      a.loc.toLowerCase().includes(search) ||
+      a.type.toLowerCase().includes(search);
+    const matchDept = !deptF || a.dept === deptF;
+    return matchSearch && matchDept;
+  });
+
+  const list = document.getElementById('cfgList');
+  document.getElementById('cfgSubtitle').textContent = `${ASSETS.length} units registered`;
+
+  if (!filtered.length) {
+    list.innerHTML = `<div class="cfg-no-results"><div class="cfg-no-icon">🔍</div>No units match your search.</div>`;
+    return;
+  }
+
+  const typeIconMap = { 'DCP':'🔴', 'AFFF':'🟢', 'CO2':'⚫', 'DCP Trolley':'🛒' };
+
+  list.innerHTML = filtered.map(a => `
+    <div class="cfg-item" style="border-left-color: var(--red);">
+      <div class="cfg-item-top" onclick="this.nextElementSibling.style.display = this.nextElementSibling.style.display==='flex' ? 'none' : 'flex'">
+        <div class="cfg-item-icon">${typeIconMap[a.type] || '🧯'}</div>
+        <div class="cfg-item-info">
+          <div class="cfg-item-id">${a.id}</div>
+          <div class="cfg-item-loc">${a.loc}</div>
+          <div class="cfg-item-tags">
+            <span class="cfg-tag cfg-tag-type">${a.type}</span>
+            <span class="cfg-tag cfg-tag-dept">${a.dept.charAt(0)+a.dept.slice(1).toLowerCase()}</span>
+          </div>
+        </div>
+        <div style="color:var(--muted); font-size:18px; flex-shrink:0;">›</div>
+      </div>
+      <div class="cfg-item-actions" style="display:none;">
+        <button class="cfg-btn-edit" onclick="cfgPinGate('edit','${a.id}')">✏️ Edit</button>
+        <button class="cfg-btn-delete" onclick="cfgPinGate('delete','${a.id}')">🗑️ Remove</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ── CONFIG: ADD/EDIT MODAL ────────────────────────────────────────────────────
+let editingFeId = null; // null = adding new
+
+function openAddModal() {
+  editingFeId = null;
+  document.getElementById('feModalTitle').textContent = '➕ Add Extinguisher';
+  document.getElementById('feModalSub').textContent = 'Fill in the details for the new unit.';
+  document.getElementById('feModalSaveBtn').textContent = 'Add Unit';
+
+  // Suggest next ID
+  const nums = ASSETS.map(a => parseInt(a.id.replace('FE-',''))).filter(n => !isNaN(n));
+  const nextNum = nums.length ? Math.max(...nums) + 1 : 1;
+  document.getElementById('feModalId').value = 'FE-' + String(nextNum).padStart(2,'0');
+  document.getElementById('feModalId').readOnly = false;
+  document.getElementById('feIdHint').textContent = '';
+  document.getElementById('feModalType').value = 'DCP';
+  document.getElementById('feModalDept').value = 'TECHNICAL';
+  document.getElementById('feModalLoc').value = '';
+
+  document.getElementById('feModal').classList.add('open');
+  setTimeout(() => document.getElementById('feModalLoc').focus(), 200);
+}
+
+function openEditModal(feId) {
+  const a = ASSETS.find(x => x.id === feId);
+  if (!a) return;
+  editingFeId = feId;
+
+  document.getElementById('feModalTitle').textContent = `✏️ Edit ${feId}`;
+  document.getElementById('feModalSub').textContent = 'Update the details for this unit.';
+  document.getElementById('feModalSaveBtn').textContent = 'Save Changes';
+
+  document.getElementById('feModalId').value = a.id;
+  document.getElementById('feModalId').readOnly = true; // ID cannot be changed on edit
+  document.getElementById('feIdHint').textContent = 'ID cannot be changed after creation.';
+  document.getElementById('feModalType').value = a.type;
+  document.getElementById('feModalDept').value = a.dept;
+  document.getElementById('feModalLoc').value = a.loc;
+
+  document.getElementById('feModal').classList.add('open');
+  setTimeout(() => document.getElementById('feModalLoc').focus(), 200);
+}
+
+function closeFeModal() {
+  document.getElementById('feModal').classList.remove('open');
+}
+
+function saveFeModal() {
+  const rawId = document.getElementById('feModalId').value.trim().toUpperCase();
+  const type  = document.getElementById('feModalType').value;
+  const dept  = document.getElementById('feModalDept').value;
+  const loc   = document.getElementById('feModalLoc').value.trim();
+
+  if (!rawId) { showToast('FE ID is required', 'error'); return; }
+  if (!loc)   { showToast('Location is required', 'error'); return; }
+
+  if (editingFeId === null) {
+    // Adding new — check for duplicate ID
+    if (ASSETS.find(a => a.id === rawId)) {
+      showToast(`${rawId} already exists`, 'error'); return;
+    }
+    ASSETS.push({ id: rawId, type, dept, loc });
+    // Sort by numeric ID
+    ASSETS.sort((a, b) => {
+      const na = parseInt(a.id.replace('FE-','')) || 0;
+      const nb = parseInt(b.id.replace('FE-','')) || 0;
+      return na - nb;
+    });
+    closeFeModal();
+    refreshAllViews();
+    showToast(`✓ ${rawId} added`);
+  } else {
+    // Editing existing
+    const idx = ASSETS.findIndex(a => a.id === editingFeId);
+    if (idx === -1) { showToast('Unit not found', 'error'); return; }
+    ASSETS[idx] = { id: editingFeId, type, dept, loc };
+    closeFeModal();
+    refreshAllViews();
+    showToast(`✓ ${editingFeId} updated`);
+  }
+}
+
+// ── CONFIG: DELETE MODAL ──────────────────────────────────────────────────────
+let deletingFeId = null;
+
+function openDeleteModal(feId) {
+  const a = ASSETS.find(x => x.id === feId);
+  if (!a) return;
+  deletingFeId = feId;
+  document.getElementById('deleteModalMsg').innerHTML =
+    `Are you sure you want to remove <strong>${feId}</strong>?<br>
+     <span style="font-size:12px; color:var(--muted);">${a.type} — ${a.loc}</span><br><br>
+     <span style="font-size:12px; color:var(--red);">This removes it from the asset register and QR labels. Inspection history in the log is not affected.</span>`;
+  document.getElementById('deleteModal').classList.add('open');
+}
+
+function closeDeleteModal() {
+  document.getElementById('deleteModal').classList.remove('open');
+  deletingFeId = null;
+}
+
+function confirmDelete() {
+  if (!deletingFeId) return;
+  const idx = ASSETS.findIndex(a => a.id === deletingFeId);
+  if (idx !== -1) {
+    const removed = ASSETS.splice(idx, 1)[0];
+    closeDeleteModal();
+    refreshAllViews();
+    showToast(`${removed.id} removed`);
+  }
+}
+
 // ── TOAST ─────────────────────────────────────────────────────────────────────
 let toastTimer;
 function showToast(msg, type='') {
@@ -1391,6 +1888,76 @@ function showToast(msg, type='') {
   el.className = 'toast' + (type === 'error' ? ' error' : '') + ' show';
   clearTimeout(toastTimer);
   toastTimer = setTimeout(() => el.classList.remove('show'), 3200);
+}
+
+// ── QR LABELS ─────────────────────────────────────────────────────────────────
+const BASE_URL = window.location.origin + window.location.pathname + '?fe=';
+let qrGenerated = false;
+let currentQrFilter = 'ALL';
+
+function filterQR(dept) {
+  currentQrFilter = dept;
+  document.querySelectorAll('[data-qrfilter]').forEach(b => {
+    b.classList.toggle('active', b.dataset.qrfilter === dept);
+  });
+  qrGenerated = false; // force re-render for new filter
+  renderQRGrid();
+}
+
+function renderQRGrid() {
+  // Refresh filter button counts each time
+  const depts = ['SALES','RESTAURANT','ADMINISTRATION','TECHNICAL'];
+  const deptLabels = { SALES:'Sales', RESTAURANT:'Restaurant', ADMINISTRATION:'Administration', TECHNICAL:'Technical' };
+  document.querySelector('[data-qrfilter="ALL"]').textContent = `All (${ASSETS.length})`;
+  depts.forEach(d => {
+    const btn = document.querySelector(`[data-qrfilter="${d}"]`);
+    if (btn) {
+      const count = ASSETS.filter(a => a.dept === d).length;
+      btn.textContent = `${deptLabels[d]} (${count})`;
+    }
+  });
+
+  const grid = document.getElementById('qrGrid');
+  if (!grid) return;
+  const filtered = currentQrFilter === 'ALL'
+    ? ASSETS
+    : ASSETS.filter(a => a.dept === currentQrFilter);
+
+  grid.innerHTML = filtered.map(a => `
+    <div class="qr-label-card">
+      <div class="qr-label-head">
+        <span style="font-size:12px;">🧯</span>
+        <div class="qr-label-head-text">MJSR FIRE<br>EXTINGUISHER</div>
+      </div>
+      <div class="qr-label-body">
+        <div class="qr-label-id">${a.id}</div>
+        <div class="qr-label-type">${a.type}</div>
+        <div class="qr-label-loc">${a.loc}</div>
+        <div class="qr-label-dept">${a.dept}</div>
+        <div class="qr-label-qr" id="qrc-${a.id}"></div>
+        <div class="qr-label-url">${BASE_URL}${a.id}</div>
+      </div>
+    </div>
+  `).join('');
+
+  // Generate QR codes after DOM is painted
+  requestAnimationFrame(() => {
+    filtered.forEach(a => {
+      const el = document.getElementById('qrc-' + a.id);
+      if (!el || el.children.length) return;
+      try {
+        new QRCode(el, {
+          text: BASE_URL + a.id,
+          width: 120, height: 120,
+          colorDark: '#2c3e50',
+          colorLight: '#ffffff',
+          correctLevel: QRCode.CorrectLevel.H
+        });
+      } catch(e) {
+        el.innerHTML = '<div style="font-size:10px;color:#aaa;text-align:center;">QR unavailable</div>';
+      }
+    });
+  });
 }
 </script>
 </body>
