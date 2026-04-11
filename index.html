@@ -3,1959 +3,1087 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>MJSR Fire Extinguisher Management</title>
+<title>Samsons Group — Fire Extinguisher Management</title>
 <style>
   :root {
-    --red:       #c0392b;
-    --red-dark:  #96281b;
-    --red-light: #e74c3c;
-    --orange:    #e67e22;
-    --green:     #27ae60;
-    --amber:     #f39c12;
-    --slate:     #2c3e50;
-    --slate-mid: #34495e;
-    --slate-light: #4a6275;
-    --bg:        #f0f2f5;
-    --card:      #ffffff;
-    --border:    #dce1e7;
-    --text:      #1a2332;
-    --muted:     #6b7c93;
-    --white:     #ffffff;
-    --shadow:    0 2px 12px rgba(0,0,0,0.08);
-    --shadow-lg: 0 8px 32px rgba(0,0,0,0.14);
+    --red:#c0392b; --red-dark:#96281b; --orange:#e67e22; --green:#27ae60; --amber:#f39c12;
+    --slate:#2c3e50; --slate-mid:#34495e; --bg:#f0f2f5; --card:#ffffff; --border:#dce1e7;
+    --text:#1a2332; --muted:#6b7c93; --white:#ffffff;
+    --shadow:0 2px 12px rgba(0,0,0,0.08); --shadow-lg:0 8px 32px rgba(0,0,0,0.14);
+    --site-color:#c0392b;
   }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
 
-  * { box-sizing: border-box; margin: 0; padding: 0; }
+  /* SITE SELECTOR */
+  #siteSelector{min-height:100vh;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:40px 20px;}
+  .ss-logo{font-size:40px;margin-bottom:12px;}
+  .ss-title{color:var(--text);font-size:20px;font-weight:700;text-align:center;}
+  .ss-sub{color:var(--muted);font-size:12px;margin-top:4px;text-align:center;letter-spacing:.5px;text-transform:uppercase;}
+  .ss-divider{width:40px;height:3px;background:var(--site-color);border-radius:2px;margin:20px auto;}
+  .ss-label{color:var(--muted);font-size:11px;font-weight:600;letter-spacing:.8px;text-transform:uppercase;margin-bottom:12px;text-align:center;}
+  .ss-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;width:100%;max-width:420px;}
+  .ss-card{background:var(--card);border:1.5px solid var(--border);border-radius:14px;padding:16px 14px;cursor:pointer;transition:all .2s;display:flex;flex-direction:column;gap:8px;box-shadow:var(--shadow);}
+  .ss-card:hover{border-color:var(--site-color);box-shadow:var(--shadow-lg);transform:translateY(-2px);}
+  .ss-card.placeholder{opacity:.45;cursor:default;}
+  .ss-card.placeholder:hover{transform:none;box-shadow:var(--shadow);border-color:var(--border);}
+  .ss-card-icon{font-size:26px;}
+  .ss-card-name{color:var(--text);font-size:13px;font-weight:700;line-height:1.2;}
+  .ss-card-count{font-size:11px;color:var(--muted);}
+  .ss-card-row{display:flex;align-items:center;gap:6px;}
+  .ss-card-dot{width:8px;height:8px;border-radius:50%;margin-top:2px;}
 
-  body {
-    font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    min-height: 100vh;
-  }
+  /* HEADER */
+  .header{background:var(--card);color:var(--text);padding:0;position:sticky;top:0;z-index:100;box-shadow:0 2px 8px rgba(0,0,0,0.08);border-bottom:1px solid var(--border);}
+  .header-inner{display:flex;align-items:center;gap:12px;padding:12px 16px;}
+  .header-icon{width:38px;height:38px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;background:var(--site-color);box-shadow:0 2px 8px rgba(0,0,0,0.15);}
+  .header-text h1{font-size:14px;font-weight:700;color:var(--text);}
+  .header-text p{font-size:10px;color:var(--muted);margin-top:1px;}
+  .header-btns{margin-left:auto;display:flex;gap:6px;}
+  .header-btn{background:var(--bg);border:1.5px solid var(--border);color:var(--text);padding:6px 10px;border-radius:7px;font-size:11px;cursor:pointer;transition:all .2s;white-space:nowrap;font-weight:600;}
+  .header-btn:hover{border-color:var(--site-color);color:var(--site-color);}
 
-  /* ── HEADER ── */
-  .header {
-    background: linear-gradient(135deg, var(--slate) 0%, var(--slate-mid) 100%);
-    color: var(--white);
-    padding: 0;
-    position: sticky;
-    top: 0;
-    z-index: 100;
-    box-shadow: 0 2px 16px rgba(0,0,0,0.25);
-  }
-  .header-inner {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    padding: 14px 20px;
-  }
-  .header-icon {
-    width: 42px; height: 42px;
-    background: var(--red);
-    border-radius: 10px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 22px;
-    flex-shrink: 0;
-    box-shadow: 0 2px 8px rgba(192,57,43,0.5);
-  }
-  .header-text h1 { font-size: 16px; font-weight: 700; letter-spacing: 0.3px; }
-  .header-text p  { font-size: 11px; opacity: 0.65; margin-top: 1px; }
-  .header-admin-btn {
-    margin-left: auto;
-    background: rgba(255,255,255,0.12);
-    border: 1px solid rgba(255,255,255,0.2);
-    color: var(--white);
-    padding: 7px 14px;
-    border-radius: 8px;
-    font-size: 12px;
-    cursor: pointer;
-    display: flex; align-items: center; gap: 6px;
-    transition: background 0.2s;
-  }
-  .header-admin-btn:hover { background: rgba(255,255,255,0.2); }
+  /* NAV */
+  .nav-tabs{display:flex;background:var(--bg);border-top:1px solid var(--border);overflow-x:auto;}
+  .nav-tabs::-webkit-scrollbar{display:none;}
+  .nav-tab{flex:0 0 auto;padding:9px 10px;text-align:center;font-size:10px;color:var(--muted);cursor:pointer;border-bottom:3px solid transparent;transition:all .2s;font-weight:500;display:flex;flex-direction:column;align-items:center;gap:2px;min-width:56px;}
+  .nav-tab .tab-icon{font-size:15px;}
+  .nav-tab.active{color:var(--site-color);border-bottom-color:var(--site-color);background:var(--card);font-weight:700;}
 
-  /* ── NAV TABS ── */
-  .nav-tabs {
-    display: flex;
-    background: var(--slate-mid);
-    border-top: 1px solid rgba(255,255,255,0.08);
-  }
-  .nav-tab {
-    flex: 1;
-    padding: 10px 6px;
-    text-align: center;
-    font-size: 11px;
-    color: rgba(255,255,255,0.55);
-    cursor: pointer;
-    border-bottom: 3px solid transparent;
-    transition: all 0.2s;
-    font-weight: 500;
-    display: flex; flex-direction: column; align-items: center; gap: 3px;
-  }
-  .nav-tab .tab-icon { font-size: 16px; }
-  .nav-tab.active {
-    color: var(--white);
-    border-bottom-color: var(--red);
-    background: rgba(255,255,255,0.06);
-  }
+  /* VIEWS */
+  .view{display:none;padding:14px;}
+  .view.active{display:block;}
 
-  /* ── VIEWS ── */
-  .view { display: none; padding: 16px; }
-  .view.active { display: block; }
+  /* SCAN HERO */
+  .scan-hero{border-radius:14px;padding:24px 18px;text-align:center;color:var(--white);margin-bottom:16px;box-shadow:var(--shadow);background:var(--site-color);}
+  .scan-hero .hero-icon{font-size:46px;margin-bottom:10px;}
+  .scan-hero h2{font-size:18px;font-weight:700;}
+  .scan-hero p{font-size:12px;opacity:.8;margin-top:5px;}
+  .btn-scan{width:100%;background:var(--white);color:var(--site-color);border:none;padding:14px;border-radius:11px;font-size:14px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;margin-top:14px;box-shadow:0 4px 14px rgba(0,0,0,0.15);transition:transform .15s;}
+  .btn-scan:active{transform:scale(.98);}
+  .manual-section{margin-top:14px;}
+  .manual-section label{font-size:11px;color:var(--muted);font-weight:600;display:block;margin-bottom:5px;}
+  .manual-select{width:100%;padding:11px 12px;border:1.5px solid var(--border);border-radius:9px;font-size:13px;background:var(--card);color:var(--text);appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%236b7c93' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;}
+  .btn-manual{width:100%;background:var(--slate);color:var(--white);border:none;padding:12px;border-radius:9px;font-size:13px;font-weight:600;cursor:pointer;margin-top:8px;}
 
-  /* ── SCAN VIEW ── */
-  .scan-hero {
-    background: linear-gradient(135deg, var(--red) 0%, var(--red-dark) 100%);
-    border-radius: 16px;
-    padding: 28px 20px;
-    text-align: center;
-    color: var(--white);
-    margin-bottom: 20px;
-    box-shadow: var(--shadow-lg);
-  }
-  .scan-hero .hero-icon { font-size: 52px; margin-bottom: 12px; }
-  .scan-hero h2 { font-size: 20px; font-weight: 700; }
-  .scan-hero p  { font-size: 13px; opacity: 0.8; margin-top: 6px; }
+  /* FORM */
+  .form-card{background:var(--card);border-radius:13px;box-shadow:var(--shadow);overflow:hidden;}
+  .form-card-header{padding:14px 18px;color:var(--white);background:var(--site-color);}
+  .form-card-header .fe-id{font-size:22px;font-weight:800;letter-spacing:1px;}
+  .form-card-header .fe-meta{font-size:11px;opacity:.85;margin-top:3px;}
+  .fe-type-badge{display:inline-block;background:rgba(255,255,255,0.2);border-radius:5px;padding:2px 9px;font-size:10px;font-weight:700;margin-top:6px;margin-right:4px;}
+  .form-body{padding:16px;}
+  .field-group{margin-bottom:14px;}
+  .field-group label{font-size:11px;color:var(--muted);font-weight:600;display:block;margin-bottom:5px;text-transform:uppercase;letter-spacing:.4px;}
+  .condition-btns,.gas-btns{display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;}
+  .cond-btn,.gas-btn{padding:9px 5px;border-radius:9px;border:2px solid var(--border);background:var(--card);font-size:11px;font-weight:600;cursor:pointer;text-align:center;transition:all .15s;color:var(--muted);display:flex;flex-direction:column;align-items:center;gap:3px;}
+  .cond-btn .cond-icon,.gas-btn .gas-icon{font-size:18px;}
+  .cond-btn.selected-good,.gas-btn.selected-full{border-color:var(--green);background:#eafaf1;color:var(--green);}
+  .cond-btn.selected-fair,.gas-btn.selected-partial{border-color:var(--amber);background:#fef9e7;color:var(--orange);}
+  .cond-btn.selected-faulty,.gas-btn.selected-empty{border-color:var(--red);background:#fdedec;color:var(--red);}
+  .input-field{width:100%;padding:11px 12px;border:1.5px solid var(--border);border-radius:9px;font-size:13px;background:var(--card);color:var(--text);transition:border-color .2s;}
+  .input-field:focus{outline:none;border-color:var(--site-color);}
+  textarea.input-field{resize:vertical;min-height:72px;font-family:inherit;}
+  .expiry-row{display:grid;grid-template-columns:1fr 1fr;gap:9px;}
+  .btn-submit{width:100%;color:var(--white);border:none;padding:14px;border-radius:11px;font-size:14px;font-weight:700;cursor:pointer;margin-top:6px;display:flex;align-items:center;justify-content:center;gap:7px;background:var(--site-color);box-shadow:0 4px 14px rgba(0,0,0,0.2);transition:opacity .2s,transform .15s;}
+  .btn-submit:disabled{opacity:.5;cursor:not-allowed;}
+  .btn-submit:active{transform:scale(.98);}
+  .btn-back{background:none;border:none;color:var(--muted);font-size:12px;cursor:pointer;display:flex;align-items:center;gap:5px;margin-bottom:12px;padding:3px 0;}
 
-  .btn-scan {
-    width: 100%;
-    background: var(--white);
-    color: var(--red);
-    border: none;
-    padding: 16px;
-    border-radius: 12px;
-    font-size: 15px;
-    font-weight: 700;
-    cursor: pointer;
-    display: flex; align-items: center; justify-content: center; gap: 10px;
-    margin-top: 16px;
-    box-shadow: 0 4px 16px rgba(0,0,0,0.15);
-    transition: transform 0.15s, box-shadow 0.15s;
-  }
-  .btn-scan:active { transform: scale(0.98); }
+  /* SECTION TITLE */
+  .section-title{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;margin-bottom:10px;margin-top:18px;}
+  .section-title:first-child{margin-top:0;}
 
-  .manual-section { margin-top: 16px; }
-  .manual-section label { font-size: 12px; color: var(--muted); font-weight: 600; display: block; margin-bottom: 6px; }
-  .manual-select {
-    width: 100%;
-    padding: 12px 14px;
-    border: 1.5px solid var(--border);
-    border-radius: 10px;
-    font-size: 14px;
-    background: var(--card);
-    color: var(--text);
-    appearance: none;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236b7c93' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-position: right 12px center;
-  }
-  .btn-manual {
-    width: 100%;
-    background: var(--slate);
-    color: var(--white);
-    border: none;
-    padding: 13px;
-    border-radius: 10px;
-    font-size: 14px;
-    font-weight: 600;
-    cursor: pointer;
-    margin-top: 10px;
-    transition: background 0.2s;
-  }
-  .btn-manual:hover { background: var(--slate-mid); }
+  /* STATS */
+  .stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;}
+  .stat-card{background:var(--card);border-radius:11px;padding:14px;box-shadow:var(--shadow);text-align:center;}
+  .stat-card .stat-num{font-size:26px;font-weight:800;}
+  .stat-card .stat-lbl{font-size:10px;color:var(--muted);margin-top:2px;}
+  .stat-card.red .stat-num{color:var(--red);} .stat-card.green .stat-num{color:var(--green);}
+  .stat-card.amber .stat-num{color:var(--amber);} .stat-card.slate .stat-num{color:var(--site-color);}
 
-  /* ── INSPECTION FORM ── */
-  .form-card {
-    background: var(--card);
-    border-radius: 14px;
-    box-shadow: var(--shadow);
-    overflow: hidden;
-  }
-  .form-card-header {
-    background: linear-gradient(135deg, var(--red) 0%, var(--red-dark) 100%);
-    padding: 16px 20px;
-    color: var(--white);
-  }
-  .form-card-header .fe-id { font-size: 22px; font-weight: 800; letter-spacing: 1px; }
-  .form-card-header .fe-meta { font-size: 12px; opacity: 0.85; margin-top: 4px; }
-  .form-card-header .fe-type-badge {
-    display: inline-block;
-    background: rgba(255,255,255,0.2);
-    border-radius: 6px;
-    padding: 3px 10px;
-    font-size: 11px;
-    font-weight: 700;
-    margin-top: 8px;
-    letter-spacing: 0.5px;
-  }
-  .form-body { padding: 20px; }
+  /* DEPT BARS */
+  .dept-bar-row{background:var(--card);border-radius:11px;padding:12px 14px;box-shadow:var(--shadow);margin-bottom:7px;}
+  .dept-bar-label{display:flex;justify-content:space-between;font-size:12px;margin-bottom:5px;}
+  .dept-bar-label .dept-name{font-weight:600;}
+  .dept-bar-label .dept-pct{color:var(--muted);font-size:11px;}
+  .dept-bar-track{height:7px;background:var(--border);border-radius:4px;overflow:hidden;}
+  .dept-bar-fill{height:100%;border-radius:4px;background:var(--site-color);transition:width .6s ease;}
 
-  .field-group { margin-bottom: 16px; }
-  .field-group label {
-    font-size: 12px;
-    color: var(--muted);
-    font-weight: 600;
-    display: block;
-    margin-bottom: 6px;
-    text-transform: uppercase;
-    letter-spacing: 0.4px;
-  }
+  /* FILTER ROW */
+  .asset-filter-row{display:flex;gap:7px;margin-bottom:12px;overflow-x:auto;padding-bottom:3px;}
+  .asset-filter-row::-webkit-scrollbar{display:none;}
+  .asset-filter-btn{padding:6px 12px;border-radius:18px;border:1.5px solid var(--border);background:var(--card);font-size:11px;font-weight:600;cursor:pointer;white-space:nowrap;color:var(--muted);transition:all .15s;}
+  .asset-filter-btn.active{background:var(--slate);color:var(--white);border-color:var(--slate);}
 
-  /* Condition selector */
-  .condition-btns { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
-  .cond-btn {
-    padding: 10px 6px;
-    border-radius: 10px;
-    border: 2px solid var(--border);
-    background: var(--card);
-    font-size: 12px;
-    font-weight: 600;
-    cursor: pointer;
-    text-align: center;
-    transition: all 0.15s;
-    color: var(--muted);
-    display: flex; flex-direction: column; align-items: center; gap: 4px;
-  }
-  .cond-btn .cond-icon { font-size: 20px; }
-  .cond-btn.selected-good    { border-color: var(--green);  background: #eafaf1; color: var(--green); }
-  .cond-btn.selected-fair    { border-color: var(--amber);  background: #fef9e7; color: var(--orange); }
-  .cond-btn.selected-faulty  { border-color: var(--red);    background: #fdedec; color: var(--red); }
+  /* ASSET ROW */
+  .asset-row{background:var(--card);border-radius:9px;padding:11px 14px;box-shadow:var(--shadow);margin-bottom:6px;display:flex;align-items:center;gap:11px;cursor:pointer;transition:box-shadow .15s;}
+  .asset-row:hover{box-shadow:var(--shadow-lg);}
+  .asset-row-icon{width:34px;height:34px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;background:#fdedec;}
+  .asset-row-info{flex:1;min-width:0;}
+  .asset-row-id{font-size:12px;font-weight:700;}
+  .asset-row-loc{font-size:10px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:1px;}
+  .asset-row-type{font-size:10px;font-weight:600;color:#2471a3;}
 
-  /* Gas level */
-  .gas-btns { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
-  .gas-btn {
-    padding: 10px 6px;
-    border-radius: 10px;
-    border: 2px solid var(--border);
-    background: var(--card);
-    font-size: 12px;
-    font-weight: 600;
-    cursor: pointer;
-    text-align: center;
-    transition: all 0.15s;
-    color: var(--muted);
-    display: flex; flex-direction: column; align-items: center; gap: 4px;
-  }
-  .gas-btn .gas-icon { font-size: 20px; }
-  .gas-btn.selected-full     { border-color: var(--green);  background: #eafaf1; color: var(--green); }
-  .gas-btn.selected-partial  { border-color: var(--amber);  background: #fef9e7; color: var(--orange); }
-  .gas-btn.selected-empty    { border-color: var(--red);    background: #fdedec; color: var(--red); }
+  /* LOG */
+  .filter-row{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:12px;}
+  .log-item{background:var(--card);border-radius:11px;padding:12px 14px;box-shadow:var(--shadow);margin-bottom:7px;border-left:4px solid var(--border);cursor:pointer;}
+  .log-item.good{border-left-color:var(--green);} .log-item.fair{border-left-color:var(--amber);} .log-item.faulty{border-left-color:var(--red);}
+  .log-item-top{display:flex;justify-content:space-between;align-items:flex-start;}
+  .log-item-id{font-size:13px;font-weight:700;}
+  .log-item-date{font-size:10px;color:var(--muted);}
+  .log-item-loc{font-size:11px;color:var(--muted);margin-top:2px;}
+  .log-item-badges{display:flex;gap:5px;margin-top:7px;flex-wrap:wrap;}
+  .badge{padding:2px 9px;border-radius:18px;font-size:10px;font-weight:600;}
+  .badge-good{background:#eafaf1;color:var(--green);} .badge-fair{background:#fef9e7;color:var(--orange);}
+  .badge-faulty{background:#fdedec;color:var(--red);} .badge-full{background:#eafaf1;color:var(--green);}
+  .badge-partial{background:#fef9e7;color:var(--orange);} .badge-empty{background:#fdedec;color:var(--red);}
+  .badge-dept{background:#eaf0fb;color:#2471a3;}
+  .log-detail{display:none;margin-top:9px;padding-top:9px;border-top:1px solid var(--border);font-size:11px;color:var(--muted);}
+  .log-detail.open{display:block;}
+  .log-detail-row{margin-bottom:3px;}
+  .log-detail-row span{color:var(--text);font-weight:500;}
 
-  /* Date + Inspector */
-  .input-field {
-    width: 100%;
-    padding: 12px 14px;
-    border: 1.5px solid var(--border);
-    border-radius: 10px;
-    font-size: 14px;
-    background: var(--card);
-    color: var(--text);
-    transition: border-color 0.2s;
-  }
-  .input-field:focus { outline: none; border-color: var(--red); }
+  /* QR LABELS */
+  .qr-label-card{background:var(--card);border:2px solid var(--slate);border-radius:9px;overflow:hidden;page-break-inside:avoid;break-inside:avoid;}
+  .qr-label-head{padding:5px 8px;display:flex;align-items:center;gap:5px;}
+  .qr-label-head-text{font-size:8px;font-weight:700;color:#fff;text-transform:uppercase;letter-spacing:.3px;line-height:1.2;}
+  .qr-label-body{padding:7px 9px 9px;}
+  .qr-label-id{font-size:20px;font-weight:800;color:var(--slate);letter-spacing:1px;line-height:1;}
+  .qr-label-type{display:inline-block;background:var(--slate);color:#fff;padding:2px 7px;border-radius:3px;font-size:9px;font-weight:700;margin-top:3px;}
+  .qr-label-loc{font-size:9px;color:#555;margin-top:4px;line-height:1.3;min-height:24px;}
+  .qr-label-site{font-size:8px;font-weight:600;color:#aaa;text-transform:uppercase;margin-top:2px;}
+  .qr-label-qr{margin-top:7px;display:flex;align-items:center;justify-content:center;min-height:90px;}
+  .qr-label-qr img,.qr-label-qr canvas{width:100%!important;height:auto!important;display:block;}
+  .qr-label-url{font-size:7px;color:#aaa;text-align:center;margin-top:3px;word-break:break-all;line-height:1.2;}
 
-  textarea.input-field { resize: vertical; min-height: 80px; font-family: inherit; }
+  /* CONFIG */
+  .cfg-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;gap:9px;flex-wrap:wrap;}
+  .btn-add-fe{background:var(--site-color);color:var(--white);border:none;padding:9px 16px;border-radius:9px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;}
+  .cfg-item{background:var(--card);border-radius:11px;box-shadow:var(--shadow);margin-bottom:7px;overflow:hidden;border-left:4px solid var(--border);}
+  .cfg-item-top{display:flex;align-items:center;gap:10px;padding:11px 12px;cursor:pointer;}
+  .cfg-item-icon{width:34px;height:34px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;background:#fdedec;}
+  .cfg-item-info{flex:1;min-width:0;}
+  .cfg-item-id{font-size:13px;font-weight:700;}
+  .cfg-item-loc{font-size:10px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:1px;}
+  .cfg-item-tags{display:flex;gap:4px;margin-top:4px;flex-wrap:wrap;}
+  .cfg-tag{padding:2px 7px;border-radius:4px;font-size:9px;font-weight:700;}
+  .cfg-tag-type{background:#eaf0fb;color:#2471a3;} .cfg-tag-dept{background:#f0f0f0;color:#555;}
+  .cfg-item-actions{display:flex;gap:5px;padding:0 12px 11px;}
+  .cfg-btn-edit{flex:1;padding:7px;border-radius:7px;border:1.5px solid var(--border);background:var(--card);color:var(--slate);font-size:11px;font-weight:600;cursor:pointer;}
+  .cfg-btn-delete{flex:1;padding:7px;border-radius:7px;border:1.5px solid #fad7d4;background:#fff5f5;color:var(--red);font-size:11px;font-weight:600;cursor:pointer;}
+  .cfg-no-results{text-align:center;padding:36px 18px;color:var(--muted);font-size:13px;}
 
-  .btn-submit {
-    width: 100%;
-    background: var(--red);
-    color: var(--white);
-    border: none;
-    padding: 16px;
-    border-radius: 12px;
-    font-size: 15px;
-    font-weight: 700;
-    cursor: pointer;
-    margin-top: 8px;
-    box-shadow: 0 4px 16px rgba(192,57,43,0.35);
-    transition: background 0.2s, transform 0.15s;
-    display: flex; align-items: center; justify-content: center; gap: 8px;
-  }
-  .btn-submit:hover  { background: var(--red-dark); }
-  .btn-submit:active { transform: scale(0.98); }
-  .btn-submit:disabled { background: #bbb; box-shadow: none; cursor: not-allowed; }
+  /* MODALS */
+  .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:200;display:flex;align-items:center;justify-content:center;padding:18px;opacity:0;pointer-events:none;transition:opacity .2s;}
+  .modal-overlay.open{opacity:1;pointer-events:all;}
+  .modal-box{background:var(--card);border-radius:16px;padding:24px 20px;width:100%;max-width:340px;box-shadow:var(--shadow-lg);transform:scale(.92);transition:transform .25s cubic-bezier(.34,1.56,.64,1);}
+  .modal-overlay.open .modal-box{transform:scale(1);}
+  .modal-box h3{font-size:17px;font-weight:700;margin-bottom:5px;}
+  .modal-box p{font-size:12px;color:var(--muted);margin-bottom:16px;}
+  .pin-input{width:100%;padding:12px;border:2px solid var(--border);border-radius:11px;font-size:20px;letter-spacing:6px;text-align:center;font-weight:700;color:var(--slate);margin-bottom:14px;transition:border-color .2s;}
+  .pin-input:focus{outline:none;border-color:var(--site-color);}
+  .pin-input.shake{animation:shake .4s;border-color:var(--red);}
+  @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
+  .modal-btns{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+  .modal-btn{padding:11px;border-radius:9px;border:none;font-size:13px;font-weight:600;cursor:pointer;}
+  .modal-btn.primary{background:var(--site-color);color:var(--white);}
+  .modal-btn.secondary{background:var(--border);color:var(--text);}
 
-  .btn-back {
-    background: none;
-    border: none;
-    color: var(--muted);
-    font-size: 13px;
-    cursor: pointer;
-    display: flex; align-items: center; gap: 6px;
-    margin-bottom: 14px;
-    padding: 4px 0;
-  }
-  .btn-back:hover { color: var(--text); }
+  /* ADMIN */
+  #adminPanel{display:none;}
+  #adminPanel.active{display:block;}
+  .admin-header{background:var(--bg);border:1.5px solid var(--border);color:var(--text);padding:12px 16px;border-radius:11px;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between;}
+  .admin-header span{font-weight:700;font-size:13px;}
+  .admin-logout{background:var(--card);border:1.5px solid var(--border);color:var(--muted);padding:5px 11px;border-radius:7px;font-size:11px;cursor:pointer;font-weight:600;}
+  .expiry-item{background:var(--card);border-radius:9px;padding:11px 14px;margin-bottom:6px;box-shadow:var(--shadow);display:flex;align-items:center;gap:10px;border-left:4px solid var(--border);}
+  .expiry-item.expired{border-left-color:var(--red);} .expiry-item.due-soon{border-left-color:var(--amber);} .expiry-item.ok{border-left-color:var(--green);}
+  .expiry-info .exp-id{font-weight:700;font-size:12px;}
+  .expiry-info .exp-loc{font-size:10px;color:var(--muted);margin-top:2px;}
+  .expiry-date{font-size:11px;font-weight:600;}
+  .expiry-date.expired{color:var(--red);} .expiry-date.due-soon{color:var(--amber);}
 
-  /* ── EXPIRY FIELD ── */
-  .expiry-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  /* TOAST */
+  .toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--green);color:var(--white);padding:12px 22px;border-radius:11px;font-size:13px;font-weight:600;box-shadow:var(--shadow-lg);z-index:999;transition:transform .35s cubic-bezier(.34,1.56,.64,1);white-space:nowrap;}
+  .toast.error{background:var(--red);}
+  .toast.show{transform:translateX(-50%) translateY(0);}
 
-  /* ── SUCCESS TOAST ── */
-  .toast {
-    position: fixed;
-    bottom: 24px; left: 50%;
-    transform: translateX(-50%) translateY(80px);
-    background: var(--green);
-    color: var(--white);
-    padding: 14px 24px;
-    border-radius: 12px;
-    font-size: 14px;
-    font-weight: 600;
-    box-shadow: var(--shadow-lg);
-    z-index: 999;
-    transition: transform 0.35s cubic-bezier(0.34,1.56,0.64,1);
-    white-space: nowrap;
-  }
-  .toast.error { background: var(--red); }
-  .toast.show { transform: translateX(-50%) translateY(0); }
+  /* LOADING */
+  .loading-msg{text-align:center;padding:36px 18px;color:var(--muted);font-size:13px;}
+  .loading-msg .spin{display:inline-block;width:26px;height:26px;border:3px solid var(--border);border-top-color:var(--site-color);border-radius:50%;animation:spin .8s linear infinite;margin-bottom:10px;}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .empty-msg{text-align:center;padding:36px 18px;color:var(--muted);font-size:13px;}
+  .empty-msg .empty-icon{font-size:36px;margin-bottom:9px;}
 
-  /* ── DASHBOARD ── */
-  .section-title {
-    font-size: 13px;
-    font-weight: 700;
-    color: var(--muted);
-    text-transform: uppercase;
-    letter-spacing: 0.6px;
-    margin-bottom: 12px;
-    margin-top: 20px;
-  }
-  .section-title:first-child { margin-top: 0; }
+  /* PAGINATION */
+  .pagination{display:flex;gap:7px;justify-content:center;margin-top:12px;flex-wrap:wrap;}
+  .page-btn{padding:7px 12px;border-radius:7px;border:1.5px solid var(--border);background:var(--card);font-size:12px;cursor:pointer;font-weight:600;}
+  .page-btn.active{background:var(--site-color);color:var(--white);border-color:var(--site-color);}
+  .page-btn:disabled{opacity:.4;cursor:not-allowed;}
+  .results-count{font-size:11px;color:var(--muted);text-align:center;margin-bottom:9px;}
 
-  .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 4px; }
-  .stat-card {
-    background: var(--card);
-    border-radius: 12px;
-    padding: 16px;
-    box-shadow: var(--shadow);
-    text-align: center;
-  }
-  .stat-card .stat-num { font-size: 28px; font-weight: 800; }
-  .stat-card .stat-lbl { font-size: 11px; color: var(--muted); margin-top: 2px; }
-  .stat-card.red   .stat-num { color: var(--red); }
-  .stat-card.green .stat-num { color: var(--green); }
-  .stat-card.amber .stat-num { color: var(--amber); }
-  .stat-card.slate .stat-num { color: var(--slate); }
+  /* PLACEHOLDER */
+  .placeholder-banner{background:linear-gradient(135deg,#f8f9fa,#e9ecef);border:2px dashed var(--border);border-radius:14px;padding:36px 20px;text-align:center;margin-bottom:16px;}
+  .placeholder-banner .ph-icon{font-size:44px;margin-bottom:12px;}
+  .placeholder-banner h3{font-size:16px;font-weight:700;color:var(--slate);margin-bottom:6px;}
+  .placeholder-banner p{font-size:12px;color:var(--muted);line-height:1.5;}
+  .placeholder-banner .ph-badge{display:inline-block;background:var(--amber);color:var(--white);padding:4px 12px;border-radius:18px;font-size:11px;font-weight:700;margin-top:12px;}
 
-  .dept-bar-row {
-    background: var(--card);
-    border-radius: 12px;
-    padding: 14px 16px;
-    box-shadow: var(--shadow);
-    margin-bottom: 8px;
-  }
-  .dept-bar-label { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 6px; }
-  .dept-bar-label .dept-name { font-weight: 600; }
-  .dept-bar-label .dept-pct  { color: var(--muted); font-size: 12px; }
-  .dept-bar-track { height: 8px; background: var(--border); border-radius: 4px; overflow: hidden; }
-  .dept-bar-fill  { height: 100%; border-radius: 4px; background: var(--red); transition: width 0.6s ease; }
+  /* QR SCANNER */
+  #qrOverlay{position:fixed;inset:0;background:#000;z-index:300;display:none;flex-direction:column;}
+  .qr-header{padding:14px 18px;display:flex;align-items:center;gap:12px;background:rgba(0,0,0,0.6);}
+  .qr-header h3{color:#fff;font-size:15px;font-weight:700;}
+  .qr-close{margin-left:auto;background:rgba(255,255,255,0.15);border:none;color:#fff;padding:7px 14px;border-radius:7px;font-size:12px;cursor:pointer;}
+  #qrVideo{width:100%;flex:1;object-fit:cover;}
+  .qr-aim{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:200px;height:200px;border:3px solid rgba(255,255,255,0.7);border-radius:14px;box-shadow:0 0 0 9999px rgba(0,0,0,0.45);}
+  .qr-hint{position:absolute;bottom:90px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.7);color:#fff;padding:9px 18px;border-radius:18px;font-size:12px;white-space:nowrap;}
 
-  /* ── LOG VIEW ── */
-  .filter-row {
-    display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
-    margin-bottom: 14px;
-  }
-  .log-item {
-    background: var(--card);
-    border-radius: 12px;
-    padding: 14px 16px;
-    box-shadow: var(--shadow);
-    margin-bottom: 8px;
-    border-left: 4px solid var(--border);
-    cursor: pointer;
-  }
-  .log-item.good   { border-left-color: var(--green); }
-  .log-item.fair   { border-left-color: var(--amber); }
-  .log-item.faulty { border-left-color: var(--red); }
-  .log-item-top { display: flex; justify-content: space-between; align-items: flex-start; }
-  .log-item-id  { font-size: 14px; font-weight: 700; }
-  .log-item-date { font-size: 11px; color: var(--muted); }
-  .log-item-loc  { font-size: 12px; color: var(--muted); margin-top: 3px; }
-  .log-item-badges { display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap; }
-  .badge {
-    padding: 3px 10px;
-    border-radius: 20px;
-    font-size: 11px;
-    font-weight: 600;
-  }
-  .badge-good    { background: #eafaf1; color: var(--green); }
-  .badge-fair    { background: #fef9e7; color: var(--orange); }
-  .badge-faulty  { background: #fdedec; color: var(--red); }
-  .badge-full    { background: #eafaf1; color: var(--green); }
-  .badge-partial { background: #fef9e7; color: var(--orange); }
-  .badge-empty   { background: #fdedec; color: var(--red); }
-  .badge-dept    { background: #eaf0fb; color: #2471a3; }
-
-  .log-detail {
-    display: none;
-    margin-top: 10px;
-    padding-top: 10px;
-    border-top: 1px solid var(--border);
-    font-size: 12px;
-    color: var(--muted);
-  }
-  .log-detail.open { display: block; }
-  .log-detail-row { margin-bottom: 4px; }
-  .log-detail-row span { color: var(--text); font-weight: 500; }
-
-  /* ── ASSET LIST VIEW ── */
-  .asset-filter-row { display: flex; gap: 8px; margin-bottom: 14px; overflow-x: auto; padding-bottom: 4px; }
-  .asset-filter-btn {
-    padding: 7px 14px;
-    border-radius: 20px;
-    border: 1.5px solid var(--border);
-    background: var(--card);
-    font-size: 12px;
-    font-weight: 600;
-    cursor: pointer;
-    white-space: nowrap;
-    transition: all 0.15s;
-    color: var(--muted);
-  }
-  .asset-filter-btn.active { background: var(--slate); color: var(--white); border-color: var(--slate); }
-
-  .asset-row {
-    background: var(--card);
-    border-radius: 10px;
-    padding: 12px 16px;
-    box-shadow: var(--shadow);
-    margin-bottom: 6px;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    cursor: pointer;
-    transition: box-shadow 0.15s;
-  }
-  .asset-row:hover { box-shadow: var(--shadow-lg); }
-  .asset-row-icon {
-    width: 38px; height: 38px;
-    border-radius: 10px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 18px;
-    flex-shrink: 0;
-    background: #fdedec;
-  }
-  .asset-row-info { flex: 1; min-width: 0; }
-  .asset-row-id   { font-size: 13px; font-weight: 700; }
-  .asset-row-loc  { font-size: 11px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 2px; }
-  .asset-row-type { font-size: 11px; font-weight: 600; }
-  .asset-row-type.DCP    { color: #2471a3; }
-  .asset-row-type.AFFF   { color: #1a7a4a; }
-  .asset-row-type.CO2    { color: #6c3483; }
-  .asset-row-type.TROLLEY { color: var(--orange); }
-  .asset-row-status {
-    width: 10px; height: 10px;
-    border-radius: 50%;
-    flex-shrink: 0;
-    background: var(--border);
-  }
-  .asset-row-status.inspected { background: var(--green); }
-  .asset-row-status.overdue   { background: var(--red); }
-
-  /* ── PIN MODAL ── */
-  .modal-overlay {
-    position: fixed; inset: 0;
-    background: rgba(0,0,0,0.55);
-    z-index: 200;
-    display: flex; align-items: center; justify-content: center;
-    padding: 20px;
-    opacity: 0; pointer-events: none;
-    transition: opacity 0.2s;
-  }
-  .modal-overlay.open { opacity: 1; pointer-events: all; }
-  .modal-box {
-    background: var(--card);
-    border-radius: 18px;
-    padding: 28px 24px;
-    width: 100%; max-width: 340px;
-    box-shadow: var(--shadow-lg);
-    transform: scale(0.92);
-    transition: transform 0.25s cubic-bezier(0.34,1.56,0.64,1);
-  }
-  .modal-overlay.open .modal-box { transform: scale(1); }
-  .modal-box h3 { font-size: 18px; font-weight: 700; margin-bottom: 6px; }
-  .modal-box p  { font-size: 13px; color: var(--muted); margin-bottom: 20px; }
-  .pin-input {
-    width: 100%;
-    padding: 14px;
-    border: 2px solid var(--border);
-    border-radius: 12px;
-    font-size: 22px;
-    letter-spacing: 6px;
-    text-align: center;
-    font-weight: 700;
-    color: var(--slate);
-    margin-bottom: 16px;
-    transition: border-color 0.2s;
-  }
-  .pin-input:focus { outline: none; border-color: var(--red); }
-  .pin-input.shake { animation: shake 0.4s; border-color: var(--red); }
-  @keyframes shake {
-    0%,100%{transform:translateX(0)} 25%{transform:translateX(-8px)} 75%{transform:translateX(8px)}
-  }
-  .modal-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-  .modal-btn {
-    padding: 12px;
-    border-radius: 10px;
-    border: none;
-    font-size: 14px;
-    font-weight: 600;
-    cursor: pointer;
-  }
-  .modal-btn.primary { background: var(--red); color: var(--white); }
-  .modal-btn.secondary { background: var(--border); color: var(--text); }
-
-  /* ── ADMIN DASHBOARD PANEL ── */
-  #adminPanel { display: none; }
-  #adminPanel.active { display: block; }
-
-  .admin-header {
-    background: var(--slate);
-    color: var(--white);
-    padding: 14px 18px;
-    border-radius: 12px;
-    margin-bottom: 16px;
-    display: flex; align-items: center; justify-content: space-between;
-  }
-  .admin-header span { font-weight: 700; font-size: 14px; }
-  .admin-logout {
-    background: rgba(255,255,255,0.15);
-    border: none;
-    color: var(--white);
-    padding: 6px 12px;
-    border-radius: 8px;
-    font-size: 12px;
-    cursor: pointer;
-  }
-
-  /* Expiry alert list */
-  .expiry-item {
-    background: var(--card);
-    border-radius: 10px;
-    padding: 12px 16px;
-    margin-bottom: 6px;
-    box-shadow: var(--shadow);
-    display: flex; align-items: center; gap: 12px;
-    border-left: 4px solid var(--border);
-  }
-  .expiry-item.expired   { border-left-color: var(--red); }
-  .expiry-item.due-soon  { border-left-color: var(--amber); }
-  .expiry-item.ok        { border-left-color: var(--green); }
-  .expiry-info { flex: 1; }
-  .expiry-info .exp-id   { font-weight: 700; font-size: 13px; }
-  .expiry-info .exp-loc  { font-size: 11px; color: var(--muted); margin-top: 2px; }
-  .expiry-date { font-size: 12px; font-weight: 600; }
-  .expiry-date.expired  { color: var(--red); }
-  .expiry-date.due-soon { color: var(--amber); }
-
-  /* Loading state */
-  .loading-msg {
-    text-align: center;
-    padding: 40px 20px;
-    color: var(--muted);
-    font-size: 14px;
-  }
-  .loading-msg .spin {
-    display: inline-block;
-    width: 28px; height: 28px;
-    border: 3px solid var(--border);
-    border-top-color: var(--red);
-    border-radius: 50%;
-    animation: spin 0.8s linear infinite;
-    margin-bottom: 12px;
-  }
-  @keyframes spin { to { transform: rotate(360deg); } }
-
-  .empty-msg {
-    text-align: center;
-    padding: 40px 20px;
-    color: var(--muted);
-    font-size: 14px;
-  }
-  .empty-msg .empty-icon { font-size: 40px; margin-bottom: 10px; }
-
-  /* QR Scanner overlay */
-  #qrOverlay {
-    position: fixed; inset: 0;
-    background: #000;
-    z-index: 300;
-    display: flex; flex-direction: column;
-  }
-  #qrOverlay .qr-header {
-    padding: 16px 20px;
-    display: flex; align-items: center; gap: 14px;
-    background: rgba(0,0,0,0.6);
-  }
-  #qrOverlay .qr-header h3 { color: #fff; font-size: 16px; font-weight: 700; }
-  #qrOverlay .qr-close {
-    margin-left: auto;
-    background: rgba(255,255,255,0.15);
-    border: none; color: #fff;
-    padding: 8px 16px;
-    border-radius: 8px;
-    font-size: 13px;
-    cursor: pointer;
-  }
-  #qrVideo { width: 100%; flex: 1; object-fit: cover; }
-  .qr-aim {
-    position: absolute;
-    top: 50%; left: 50%;
-    transform: translate(-50%, -50%);
-    width: 220px; height: 220px;
-    border: 3px solid rgba(255,255,255,0.7);
-    border-radius: 16px;
-    box-shadow: 0 0 0 9999px rgba(0,0,0,0.45);
-  }
-  .qr-aim::before, .qr-aim::after {
-    content: '';
-    position: absolute;
-    width: 30px; height: 30px;
-    border-color: var(--red-light);
-    border-style: solid;
-  }
-  .qr-aim::before { top: -3px; left: -3px; border-width: 4px 0 0 4px; border-radius: 4px 0 0 4px; }
-  .qr-aim::after  { bottom: -3px; right: -3px; border-width: 0 4px 4px 0; border-radius: 0 0 4px 0; }
-  .qr-hint {
-    position: absolute;
-    bottom: 100px; left: 50%;
-    transform: translateX(-50%);
-    background: rgba(0,0,0,0.7);
-    color: #fff;
-    padding: 10px 20px;
-    border-radius: 20px;
-    font-size: 13px;
-    text-align: center;
-    white-space: nowrap;
-  }
-
-  /* Pagination */
-  .pagination { display: flex; gap: 8px; justify-content: center; margin-top: 14px; }
-  .page-btn {
-    padding: 8px 14px;
-    border-radius: 8px;
-    border: 1.5px solid var(--border);
-    background: var(--card);
-    font-size: 13px;
-    cursor: pointer;
-    font-weight: 600;
-    transition: all 0.15s;
-  }
-  .page-btn.active { background: var(--red); color: var(--white); border-color: var(--red); }
-  .page-btn:disabled { opacity: 0.4; cursor: not-allowed; }
-
-  .results-count { font-size: 12px; color: var(--muted); text-align: center; margin-bottom: 10px; }
-
-  /* ── QR LABEL CARDS ── */
-  .qr-label-card {
-    background: var(--card);
-    border: 2px solid var(--slate);
-    border-radius: 10px;
-    overflow: hidden;
-    page-break-inside: avoid;
-    break-inside: avoid;
-  }
-  .qr-label-head {
-    background: var(--red);
-    padding: 5px 10px;
-    display: flex; align-items: center; gap: 6px;
-  }
-  .qr-label-head-text {
-    font-size: 9px; font-weight: 700; color: #fff;
-    text-transform: uppercase; letter-spacing: 0.3px; line-height: 1.2;
-  }
-  .qr-label-body { padding: 8px 10px 10px; }
-  .qr-label-id {
-    font-size: 22px; font-weight: 800;
-    color: var(--slate); letter-spacing: 1px; line-height: 1;
-  }
-  .qr-label-type {
-    display: inline-block;
-    background: var(--slate); color: #fff;
-    padding: 2px 8px; border-radius: 4px;
-    font-size: 10px; font-weight: 700;
-    margin-top: 4px; letter-spacing: 0.3px;
-  }
-  .qr-label-loc  { font-size: 10px; color: #555; margin-top: 5px; line-height: 1.3; min-height: 26px; }
-  .qr-label-dept { font-size: 9px; font-weight: 600; color: #999; text-transform: uppercase; letter-spacing: 0.3px; margin-top: 3px; }
-  .qr-label-qr   { margin-top: 8px; display: flex; align-items: center; justify-content: center; min-height: 100px; }
-  .qr-label-qr img, .qr-label-qr canvas { width: 100% !important; height: auto !important; display: block; }
-  .qr-label-url  { font-size: 7.5px; color: #aaa; text-align: center; margin-top: 4px; word-break: break-all; line-height: 1.2; }
-
-  /* ── CONFIG TAB ── */
-  .cfg-header {
-    display: flex; align-items: center; justify-content: space-between;
-    margin-bottom: 14px; gap: 10px; flex-wrap: wrap;
-  }
-  .btn-add-fe {
-    background: var(--red); color: var(--white);
-    border: none; padding: 10px 18px;
-    border-radius: 10px; font-size: 13px; font-weight: 700;
-    cursor: pointer; white-space: nowrap;
-    box-shadow: 0 3px 10px rgba(192,57,43,0.3);
-    transition: background 0.2s;
-  }
-  .btn-add-fe:hover { background: var(--red-dark); }
-
-  .cfg-item {
-    background: var(--card);
-    border-radius: 12px;
-    box-shadow: var(--shadow);
-    margin-bottom: 8px;
-    overflow: hidden;
-    border-left: 4px solid var(--border);
-    transition: box-shadow 0.15s;
-  }
-  .cfg-item:hover { box-shadow: var(--shadow-lg); }
-  .cfg-item-top {
-    display: flex; align-items: center; gap: 12px;
-    padding: 12px 14px;
-    cursor: pointer;
-  }
-  .cfg-item-icon {
-    width: 36px; height: 36px; border-radius: 9px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 17px; flex-shrink: 0; background: #fdedec;
-  }
-  .cfg-item-info { flex: 1; min-width: 0; }
-  .cfg-item-id   { font-size: 14px; font-weight: 700; }
-  .cfg-item-loc  { font-size: 11px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 2px; }
-  .cfg-item-tags { display: flex; gap: 5px; margin-top: 5px; flex-wrap: wrap; }
-  .cfg-tag {
-    padding: 2px 8px; border-radius: 4px;
-    font-size: 10px; font-weight: 700;
-  }
-  .cfg-tag-type { background: #eaf0fb; color: #2471a3; }
-  .cfg-tag-dept { background: #f0f0f0; color: #555; }
-  .cfg-item-actions {
-    display: flex; gap: 6px; padding: 0 14px 12px;
-  }
-  .cfg-btn-edit {
-    flex: 1; padding: 8px; border-radius: 8px;
-    border: 1.5px solid var(--border);
-    background: var(--card); color: var(--slate);
-    font-size: 12px; font-weight: 600; cursor: pointer;
-    transition: all 0.15s;
-  }
-  .cfg-btn-edit:hover { border-color: var(--slate); background: #f5f7fa; }
-  .cfg-btn-delete {
-    flex: 1; padding: 8px; border-radius: 8px;
-    border: 1.5px solid #fad7d4;
-    background: #fff5f5; color: var(--red);
-    font-size: 12px; font-weight: 600; cursor: pointer;
-    transition: all 0.15s;
-  }
-  .cfg-btn-delete:hover { background: #fdedec; border-color: var(--red); }
-
-  .cfg-no-results {
-    text-align: center; padding: 40px 20px;
-    color: var(--muted); font-size: 14px;
-  }
-  .cfg-no-results .cfg-no-icon { font-size: 38px; margin-bottom: 10px; }
-
-  /* Print: QR labels full layout + hide everything else */
-  @media print {
-    .header, .nav-tabs, #scanHero, #inspectForm,
-    #view-assets, #view-log, #view-dashboard,
-    #view-scan, #qrFilterRow, #pinModal, #toast,
-    #qrOverlay, .btn-manual, #view-config { display: none !important; }
-    #view-qrlabels { display: block !important; padding: 0 !important; }
-    #view-qrlabels > div:first-child { display: none !important; }
-    #qrGrid { grid-template-columns: repeat(4,1fr) !important; gap: 6px !important; }
-    .qr-label-card { border-width: 1.5px; }
-    body { background: #fff; padding: 8px; }
+  /* PRINT */
+  @media print{
+    #siteSelector,.header,.nav-tabs,#view-scan,#view-assets,#view-log,
+    #view-dashboard,#view-config,#qrFilterRow,#pinModal,#cfgPinModal,
+    #feModal,#deleteModal,.toast,#qrOverlay,.btn-manual{display:none!important;}
+    #view-qrlabels{display:block!important;padding:0!important;}
+    #view-qrlabels>div:first-child{display:none!important;}
+    #qrGrid{grid-template-columns:repeat(4,1fr)!important;gap:5px!important;}
+    .qr-label-card{border-width:1.5px;}
+    body{background:#fff;padding:6px;}
   }
 </style>
-
 </head>
 <body>
 
-<!-- QR SCANNER OVERLAY -->
-<div id="qrOverlay" style="display:none; position:fixed; inset:0; background:#000; z-index:300; flex-direction:column;">
+<!-- QR SCANNER -->
+<div id="qrOverlay">
   <div class="qr-header">
-    <div class="header-icon" style="width:34px;height:34px;font-size:18px;">🧯</div>
+    <div style="font-size:20px;">🧯</div>
     <h3>Scan Fire Extinguisher QR</h3>
     <button class="qr-close" onclick="closeScanner()">✕ Close</button>
   </div>
-  <div style="position:relative; flex:1; overflow:hidden;">
-    <video id="qrVideo" autoplay playsinline muted style="width:100%;height:100%;object-fit:cover;"></video>
+  <div style="position:relative;flex:1;overflow:hidden;">
+    <video id="qrVideo" autoplay playsinline muted></video>
     <div class="qr-aim"></div>
     <div class="qr-hint">Point camera at QR code on extinguisher</div>
   </div>
 </div>
 
-<!-- HEADER -->
-<div class="header">
-  <div class="header-inner">
-    <div class="header-icon">🧯</div>
-    <div class="header-text">
-      <h1>Fire Extinguisher Management</h1>
-      <p>Malam Jabba Ski Resort — MJSR</p>
-    </div>
-    <button class="header-admin-btn" onclick="openPinModal()">🔒 Admin</button>
-  </div>
-  <div class="nav-tabs">
-    <div class="nav-tab active" onclick="showTab('scan')" id="tab-scan">
-      <span class="tab-icon">📷</span>Inspect
-    </div>
-    <div class="nav-tab" onclick="showTab('assets')" id="tab-assets">
-      <span class="tab-icon">🧯</span>Assets
-    </div>
-    <div class="nav-tab" onclick="showTab('log')" id="tab-log">
-      <span class="tab-icon">📋</span>Log
-    </div>
-    <div class="nav-tab" onclick="showTab('dashboard')" id="tab-dashboard">
-      <span class="tab-icon">📊</span>Dashboard
-    </div>
-    <div class="nav-tab" onclick="showTab('qrlabels')" id="tab-qrlabels">
-      <span class="tab-icon">🏷️</span>QR Labels
-    </div>
-    <div class="nav-tab" onclick="showTab('config')" id="tab-config">
-      <span class="tab-icon">⚙️</span>Config
-    </div>
-  </div>
+<!-- SITE SELECTOR -->
+<div id="siteSelector">
+  <div class="ss-logo">🧯</div>
+  <div class="ss-title">Fire Extinguisher Management</div>
+  <div class="ss-sub">Samsons Group of Companies</div>
+  <div class="ss-divider"></div>
+  <div class="ss-label">Select Property</div>
+  <div class="ss-grid" id="ssGrid"></div>
 </div>
 
-<!-- ════════════ SCAN / INSPECT VIEW ════════════ -->
-<div class="view active" id="view-scan">
-
-  <!-- Hero (shown when no form active) -->
-  <div id="scanHero">
-    <div class="scan-hero">
-      <div class="hero-icon">🧯</div>
-      <h2>Fire Extinguisher Inspection</h2>
-      <p>Scan the QR code on the extinguisher to begin the inspection checklist.</p>
-      <button class="btn-scan" onclick="openScanner()">
-        <span style="font-size:20px;">📷</span> Scan QR Code
-      </button>
+<!-- MAIN PORTAL -->
+<div id="mainPortal" style="display:none;">
+  <div class="header">
+    <div class="header-inner">
+      <div class="header-icon" id="headerIcon">🧯</div>
+      <div class="header-text">
+        <h1>Fire Extinguisher Management</h1>
+        <p id="headerSub">Samsons Group</p>
+      </div>
+      <div class="header-btns">
+        <button class="header-btn" onclick="openPinModal()">🔒 Admin</button>
+        <button class="header-btn" onclick="goHome()">⌂ Sites</button>
+      </div>
     </div>
-
-    <div class="manual-section">
-      <label>OR SELECT MANUALLY</label>
-      <select class="manual-select" id="manualSelect">
-        <option value="">— Choose extinguisher —</option>
-      </select>
-      <button class="btn-manual" onclick="openManual()">Open Inspection Form</button>
+    <div class="nav-tabs">
+      <div class="nav-tab active" onclick="showTab('scan')"      id="tab-scan">      <span class="tab-icon">📷</span>Inspect</div>
+      <div class="nav-tab"        onclick="showTab('assets')"    id="tab-assets">    <span class="tab-icon">🧯</span>Assets</div>
+      <div class="nav-tab"        onclick="showTab('log')"       id="tab-log">       <span class="tab-icon">📋</span>Log</div>
+      <div class="nav-tab"        onclick="showTab('dashboard')" id="tab-dashboard"> <span class="tab-icon">📊</span>Dashboard</div>
+      <div class="nav-tab"        onclick="showTab('qrlabels')"  id="tab-qrlabels">  <span class="tab-icon">🏷️</span>QR Labels</div>
+      <div class="nav-tab"        onclick="showTab('config')"    id="tab-config">    <span class="tab-icon">⚙️</span>Config</div>
     </div>
   </div>
 
-  <!-- Inspection Form (hidden until QR scanned / manual selected) -->
-  <div id="inspectForm" style="display:none;">
-    <button class="btn-back" onclick="showScanHero()">← Back</button>
-    <div class="form-card">
-      <div class="form-card-header">
-        <div class="fe-id" id="formFeId">FE-01</div>
-        <div class="fe-meta" id="formFeLoc">Main Gate Ticket Booth</div>
-        <div style="display:flex; gap:8px; margin-top:8px; flex-wrap:wrap;">
-          <span class="fe-type-badge" id="formFeType">DCP</span>
-          <span class="fe-type-badge" id="formFeDept">SALES</span>
-        </div>
+  <!-- INSPECT -->
+  <div class="view active" id="view-scan">
+    <div id="scanHero">
+      <div class="scan-hero">
+        <div class="hero-icon">🧯</div>
+        <h2>Fire Extinguisher Inspection</h2>
+        <p id="scanHeroSub">Scan the QR code on the extinguisher to begin.</p>
+        <button class="btn-scan" onclick="openScanner()"><span style="font-size:18px;">📷</span> Scan QR Code</button>
       </div>
-      <div class="form-body">
-
-        <div class="field-group">
-          <label>CONDITION</label>
-          <div class="condition-btns">
-            <button class="cond-btn" id="cond-good"   onclick="selectCondition('Good')">
-              <span class="cond-icon">✅</span> Good
-            </button>
-            <button class="cond-btn" id="cond-fair"   onclick="selectCondition('Fair')">
-              <span class="cond-icon">⚠️</span> Fair
-            </button>
-            <button class="cond-btn" id="cond-faulty" onclick="selectCondition('Faulty')">
-              <span class="cond-icon">❌</span> Faulty
-            </button>
+      <div class="manual-section">
+        <label>OR SELECT MANUALLY</label>
+        <select class="manual-select" id="manualSelect"><option value="">— Choose extinguisher —</option></select>
+        <button class="btn-manual" onclick="openManual()">Open Inspection Form</button>
+      </div>
+    </div>
+    <div id="inspectForm" style="display:none;">
+      <button class="btn-back" onclick="showScanHero()">← Back</button>
+      <div class="form-card">
+        <div class="form-card-header">
+          <div class="fe-id" id="formFeId">FE-01</div>
+          <div class="fe-meta" id="formFeLoc">Location</div>
+          <div style="margin-top:6px;">
+            <span class="fe-type-badge" id="formFeType">DCP</span>
+            <span class="fe-type-badge" id="formFeDept">Dept</span>
           </div>
         </div>
-
-        <div class="field-group">
-          <label>GAS LEVEL</label>
-          <div class="gas-btns">
-            <button class="gas-btn" id="gas-full"    onclick="selectGas('Full')">
-              <span class="gas-icon">🟢</span> Full
-            </button>
-            <button class="gas-btn" id="gas-partial" onclick="selectGas('Partial')">
-              <span class="gas-icon">🟡</span> Partial
-            </button>
-            <button class="gas-btn" id="gas-empty"   onclick="selectGas('Empty')">
-              <span class="gas-icon">🔴</span> Empty
-            </button>
-          </div>
-        </div>
-
-        <div class="expiry-row">
+        <div class="form-body">
           <div class="field-group">
-            <label>LAST INSPECTED</label>
-            <input type="date" class="input-field" id="inspectionDate">
+            <label>CONDITION</label>
+            <div class="condition-btns">
+              <button class="cond-btn" id="cond-good"   onclick="selectCondition('Good')">  <span class="cond-icon">✅</span>Good</button>
+              <button class="cond-btn" id="cond-fair"   onclick="selectCondition('Fair')">  <span class="cond-icon">⚠️</span>Fair</button>
+              <button class="cond-btn" id="cond-faulty" onclick="selectCondition('Faulty')"><span class="cond-icon">❌</span>Faulty</button>
+            </div>
           </div>
           <div class="field-group">
-            <label>NEXT EXPIRY</label>
-            <input type="date" class="input-field" id="expiryDate">
+            <label>GAS LEVEL</label>
+            <div class="gas-btns">
+              <button class="gas-btn" id="gas-full"    onclick="selectGas('Full')">   <span class="gas-icon">🟢</span>Full</button>
+              <button class="gas-btn" id="gas-partial" onclick="selectGas('Partial')"><span class="gas-icon">🟡</span>Partial</button>
+              <button class="gas-btn" id="gas-empty"   onclick="selectGas('Empty')">  <span class="gas-icon">🔴</span>Empty</button>
+            </div>
           </div>
+          <div class="expiry-row">
+            <div class="field-group"><label>LAST INSPECTED</label><input type="date" class="input-field" id="inspectionDate"></div>
+            <div class="field-group"><label>NEXT EXPIRY</label>   <input type="date" class="input-field" id="expiryDate"></div>
+          </div>
+          <div class="field-group"><label>INSPECTOR NAME</label><input type="text" class="input-field" id="inspectorName" placeholder="Enter your name"></div>
+          <div class="field-group"><label>COMMENTS</label><textarea class="input-field" id="comments" placeholder="Faults, notes..."></textarea></div>
+          <button class="btn-submit" id="submitBtn" onclick="submitInspection()"><span>✓</span> Submit Inspection</button>
         </div>
-
-        <div class="field-group">
-          <label>INSPECTOR NAME</label>
-          <input type="text" class="input-field" id="inspectorName" placeholder="Enter your name">
-        </div>
-
-        <div class="field-group">
-          <label>COMMENTS / OBSERVATIONS</label>
-          <textarea class="input-field" id="comments" placeholder="Any faults, maintenance needed, notes..."></textarea>
-        </div>
-
-        <button class="btn-submit" id="submitBtn" onclick="submitInspection()">
-          <span>✓</span> Submit Inspection
-        </button>
-
       </div>
     </div>
   </div>
-</div>
 
-<!-- ════════════ ASSETS VIEW ════════════ -->
-<div class="view" id="view-assets">
-  <div class="asset-filter-row" id="assetFilterRow">
-    <button class="asset-filter-btn active" onclick="filterAssets('ALL')" data-filter="ALL">All (38)</button>
-    <button class="asset-filter-btn" onclick="filterAssets('SALES')" data-filter="SALES">Sales</button>
-    <button class="asset-filter-btn" onclick="filterAssets('RESTAURANT')" data-filter="RESTAURANT">Restaurant</button>
-    <button class="asset-filter-btn" onclick="filterAssets('ADMINISTRATION')" data-filter="ADMINISTRATION">Admin</button>
-    <button class="asset-filter-btn" onclick="filterAssets('TECHNICAL')" data-filter="TECHNICAL">Technical</button>
-  </div>
-  <div id="assetList"></div>
-</div>
-
-<!-- ════════════ LOG VIEW ════════════ -->
-<div class="view" id="view-log">
-  <div class="filter-row">
-    <select class="input-field" id="logFilterDept" onchange="loadLog()">
-      <option value="">All Departments</option>
-      <option value="SALES">Sales</option>
-      <option value="RESTAURANT">Restaurant</option>
-      <option value="ADMINISTRATION">Administration</option>
-      <option value="TECHNICAL">Technical</option>
-    </select>
-    <select class="input-field" id="logFilterCondition" onchange="loadLog()">
-      <option value="">All Conditions</option>
-      <option value="Good">Good</option>
-      <option value="Fair">Fair</option>
-      <option value="Faulty">Faulty</option>
-    </select>
-  </div>
-  <div id="logList">
-    <div class="loading-msg"><div class="spin"></div><br>Loading inspection log...</div>
-  </div>
-  <div class="pagination" id="logPagination"></div>
-</div>
-
-<!-- ════════════ DASHBOARD VIEW ════════════ -->
-<div class="view" id="view-dashboard">
-
-  <!-- Public summary always visible -->
-  <div id="publicDashboard">
-    <div class="section-title">EXTINGUISHER REGISTER SUMMARY</div>
-    <div class="stats-grid" id="dashStats">
-      <div class="stat-card slate"><div class="stat-num">38</div><div class="stat-lbl">Total Units</div></div>
-      <div class="stat-card green"><div class="stat-num" id="ds-inspected">–</div><div class="stat-lbl">Inspected</div></div>
-      <div class="stat-card red"><div class="stat-num" id="ds-faulty">–</div><div class="stat-lbl">Faulty</div></div>
-      <div class="stat-card amber"><div class="stat-num" id="ds-expiring">–</div><div class="stat-lbl">Expiring Soon</div></div>
-    </div>
-
-    <div class="section-title" style="margin-top:20px;">BY DEPARTMENT</div>
-    <div id="deptBars"></div>
+  <!-- ASSETS -->
+  <div class="view" id="view-assets">
+    <div class="asset-filter-row" id="assetFilterRow"></div>
+    <div id="assetList"></div>
   </div>
 
-  <!-- Admin panel (PIN protected) -->
-  <div id="adminPanel">
-    <div class="admin-header">
-      <span>🔐 Admin Panel</span>
-      <button class="admin-logout" onclick="logoutAdmin()">Log Out</button>
-    </div>
-    <div class="section-title">EXPIRY ALERTS</div>
-    <div id="expiryList">
-      <div class="loading-msg"><div class="spin"></div><br>Loading expiry data...</div>
-    </div>
-  </div>
-
-</div>
-
-<!-- ════════════ QR LABELS VIEW ════════════ -->
-<div class="view" id="view-qrlabels">
-  <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; flex-wrap:wrap; gap:10px;">
-    <div>
-      <div style="font-size:15px; font-weight:700;">QR Label Sheet</div>
-      <div style="font-size:12px; color:var(--muted); margin-top:2px;">38 units — print, cut &amp; laminate</div>
-    </div>
-    <button class="btn-manual" style="width:auto; padding:10px 18px;" onclick="window.print()">🖨️ Print Labels</button>
-  </div>
-
-  <!-- Dept filter -->
-  <div class="asset-filter-row" id="qrFilterRow">
-    <button class="asset-filter-btn active" onclick="filterQR('ALL')" data-qrfilter="ALL">All (38)</button>
-    <button class="asset-filter-btn" onclick="filterQR('SALES')" data-qrfilter="SALES">Sales</button>
-    <button class="asset-filter-btn" onclick="filterQR('RESTAURANT')" data-qrfilter="RESTAURANT">Restaurant</button>
-    <button class="asset-filter-btn" onclick="filterQR('ADMINISTRATION')" data-qrfilter="ADMINISTRATION">Admin</button>
-    <button class="asset-filter-btn" onclick="filterQR('TECHNICAL')" data-qrfilter="TECHNICAL">Technical</button>
-  </div>
-
-  <div id="qrGrid" style="display:grid; grid-template-columns:1fr 1fr; gap:10px;"></div>
-</div>
-
-<!-- ════════════ CONFIG VIEW ════════════ -->
-<div class="view" id="view-config">
-
-  <div class="cfg-header">
-    <div>
-      <div style="font-size:15px; font-weight:700;">Asset Configuration</div>
-      <div style="font-size:12px; color:var(--muted); margin-top:2px;" id="cfgSubtitle">38 units registered</div>
-    </div>
-    <button class="btn-add-fe" onclick="cfgPinGate('add',null)">＋ Add Unit</button>
-  </div>
-
-  <!-- Search + filter -->
-  <div style="display:flex; gap:8px; margin-bottom:12px;">
-    <input type="text" class="input-field" id="cfgSearch" placeholder="🔍  Search ID or location..." oninput="renderConfigList()" style="flex:1;">
-    <select class="input-field" id="cfgDeptFilter" onchange="renderConfigList()" style="width:130px;">
-      <option value="">All Depts</option>
-      <option value="SALES">Sales</option>
-      <option value="RESTAURANT">Restaurant</option>
-      <option value="ADMINISTRATION">Administration</option>
-      <option value="TECHNICAL">Technical</option>
-    </select>
-  </div>
-
-  <div id="cfgList"></div>
-</div>
-
-<!-- ADD / EDIT MODAL -->
-<div class="modal-overlay" id="feModal">
-  <div class="modal-box" style="max-width:380px;">
-    <h3 id="feModalTitle">➕ Add Extinguisher</h3>
-    <p id="feModalSub" style="margin-bottom:18px;">Fill in the details for the new unit.</p>
-
-    <div class="field-group">
-      <label>FE ID <span style="color:var(--red);">*</span></label>
-      <input type="text" class="input-field" id="feModalId" placeholder="e.g. FE-39" style="text-transform:uppercase;">
-      <div style="font-size:11px; color:var(--muted); margin-top:4px;" id="feIdHint"></div>
-    </div>
-    <div class="field-group">
-      <label>TYPE <span style="color:var(--red);">*</span></label>
-      <select class="input-field" id="feModalType">
-        <option value="DCP">DCP</option>
-        <option value="CO2">CO2</option>
-        <option value="AFFF">AFFF</option>
-        <option value="DCP Trolley">DCP Trolley</option>
+  <!-- LOG -->
+  <div class="view" id="view-log">
+    <div class="filter-row">
+      <select class="input-field" id="logFilterDept" onchange="loadLog()"><option value="">All Departments</option></select>
+      <select class="input-field" id="logFilterCondition" onchange="loadLog()">
+        <option value="">All Conditions</option>
+        <option>Good</option><option>Fair</option><option>Faulty</option>
       </select>
     </div>
-    <div class="field-group">
-      <label>DEPARTMENT <span style="color:var(--red);">*</span></label>
-      <select class="input-field" id="feModalDept">
-        <option value="SALES">Sales</option>
-        <option value="RESTAURANT">Restaurant</option>
-        <option value="ADMINISTRATION">Administration</option>
-        <option value="TECHNICAL">Technical</option>
-      </select>
-    </div>
-    <div class="field-group">
-      <label>LOCATION <span style="color:var(--red);">*</span></label>
-      <input type="text" class="input-field" id="feModalLoc" placeholder="e.g. Main Gate inside">
-    </div>
+    <div id="logList"><div class="loading-msg"><div class="spin"></div><br>Loading log...</div></div>
+    <div class="pagination" id="logPagination"></div>
+  </div>
 
-    <div class="modal-btns" style="margin-top:18px;">
-      <button class="modal-btn secondary" onclick="closeFeModal()">Cancel</button>
-      <button class="modal-btn primary" id="feModalSaveBtn" onclick="saveFeModal()">Save</button>
+  <!-- DASHBOARD -->
+  <div class="view" id="view-dashboard">
+    <div id="publicDashboard">
+      <div class="section-title">EXTINGUISHER REGISTER SUMMARY</div>
+      <div class="stats-grid">
+        <div class="stat-card slate"><div class="stat-num" id="ds-total">–</div><div class="stat-lbl">Total Units</div></div>
+        <div class="stat-card green"><div class="stat-num" id="ds-inspected">–</div><div class="stat-lbl">Inspected</div></div>
+        <div class="stat-card red">  <div class="stat-num" id="ds-faulty">–</div>   <div class="stat-lbl">Faulty</div></div>
+        <div class="stat-card amber"><div class="stat-num" id="ds-expiring">–</div> <div class="stat-lbl">Expiring Soon</div></div>
+      </div>
+      <div class="section-title" style="margin-top:18px;">BY DEPARTMENT</div>
+      <div id="deptBars"></div>
     </div>
+    <div id="adminPanel">
+      <div class="admin-header"><span>🔐 Admin Panel</span><button class="admin-logout" onclick="logoutAdmin()">Log Out</button></div>
+      <div class="section-title">EXPIRY ALERTS</div>
+      <div id="expiryList"><div class="loading-msg"><div class="spin"></div><br>Loading...</div></div>
+    </div>
+  </div>
+
+  <!-- QR LABELS -->
+  <div class="view" id="view-qrlabels">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:9px;">
+      <div>
+        <div style="font-size:14px;font-weight:700;">QR Label Sheet</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:1px;" id="qrLabelSub">Print, cut &amp; laminate</div>
+      </div>
+      <button class="btn-manual" style="width:auto;padding:9px 16px;" onclick="window.print()">🖨️ Print Labels</button>
+    </div>
+    <div class="asset-filter-row" id="qrFilterRow"></div>
+    <div id="qrGrid" style="display:grid;grid-template-columns:1fr 1fr;gap:9px;"></div>
+  </div>
+
+  <!-- CONFIG -->
+  <div class="view" id="view-config">
+    <div class="cfg-header">
+      <div>
+        <div style="font-size:14px;font-weight:700;">Asset Configuration</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:1px;" id="cfgSubtitle">Loading...</div>
+      </div>
+      <button class="btn-add-fe" onclick="cfgPinGate('add',null)">＋ Add Unit</button>
+    </div>
+    <div style="display:flex;gap:7px;margin-bottom:11px;">
+      <input type="text" class="input-field" id="cfgSearch" placeholder="🔍  Search..." oninput="renderConfigList()" style="flex:1;">
+      <select class="input-field" id="cfgDeptFilter" onchange="renderConfigList()" style="width:120px;"></select>
+    </div>
+    <div id="cfgList"></div>
   </div>
 </div>
 
-<!-- DELETE CONFIRM MODAL -->
-<div class="modal-overlay" id="deleteModal">
-  <div class="modal-box" style="max-width:340px;">
-    <h3>🗑️ Remove Unit</h3>
-    <p id="deleteModalMsg" style="margin-bottom:20px;"></p>
-    <div class="modal-btns">
-      <button class="modal-btn secondary" onclick="closeDeleteModal()">Cancel</button>
-      <button class="modal-btn" style="background:var(--red);color:#fff;" onclick="confirmDelete()">Remove</button>
-    </div>
-  </div>
-</div>
-
-<!-- CONFIG PIN MODAL -->
-<div class="modal-overlay" id="cfgPinModal">
-  <div class="modal-box" style="max-width:320px;">
-    <h3>🔒 Config Access</h3>
-    <p style="margin-bottom:18px;">Enter PIN to make changes to the asset register.</p>
-    <input type="password" class="pin-input" id="cfgPinInput" maxlength="6" placeholder="••••"
-           onkeydown="if(event.key==='Enter') checkCfgPin()">
-    <div style="font-size:11px; color:var(--muted); text-align:center; margin-bottom:12px;" id="cfgPinHint"></div>
-    <div class="modal-btns">
-      <button class="modal-btn secondary" onclick="closeCfgPinModal()">Cancel</button>
-      <button class="modal-btn primary" onclick="checkCfgPin()">Enter</button>
-    </div>
-  </div>
-</div>
-
-<!-- PIN MODAL -->
+<!-- MODALS -->
 <div class="modal-overlay" id="pinModal">
   <div class="modal-box">
-    <h3>🔐 Admin Access</h3>
-    <p>Enter PIN to access the admin dashboard</p>
-    <input type="password" class="pin-input" id="pinInput" maxlength="6" placeholder="••••"
-           onkeydown="if(event.key==='Enter') checkPin()">
-    <div class="modal-btns">
-      <button class="modal-btn secondary" onclick="closePinModal()">Cancel</button>
-      <button class="modal-btn primary" onclick="checkPin()">Enter</button>
-    </div>
+    <h3>🔐 Admin Access</h3><p>Enter PIN to access the admin dashboard.</p>
+    <input type="password" class="pin-input" id="pinInput" maxlength="6" placeholder="••••" onkeydown="if(event.key==='Enter')checkPin()">
+    <div class="modal-btns"><button class="modal-btn secondary" onclick="closePinModal()">Cancel</button><button class="modal-btn primary" onclick="checkPin()">Enter</button></div>
+  </div>
+</div>
+<div class="modal-overlay" id="cfgPinModal">
+  <div class="modal-box" style="max-width:310px;">
+    <h3>🔒 Config Access</h3><p>Enter PIN to make changes.</p>
+    <input type="password" class="pin-input" id="cfgPinInput" maxlength="6" placeholder="••••" onkeydown="if(event.key==='Enter')checkCfgPin()">
+    <div style="font-size:10px;color:var(--muted);text-align:center;margin-bottom:10px;" id="cfgPinHint"></div>
+    <div class="modal-btns"><button class="modal-btn secondary" onclick="closeCfgPinModal()">Cancel</button><button class="modal-btn primary" onclick="checkCfgPin()">Enter</button></div>
+  </div>
+</div>
+<div class="modal-overlay" id="feModal">
+  <div class="modal-box" style="max-width:370px;">
+    <h3 id="feModalTitle">➕ Add Extinguisher</h3>
+    <p id="feModalSub" style="margin-bottom:16px;">Fill in the details for the new unit.</p>
+    <div class="field-group"><label>FE ID *</label><input type="text" class="input-field" id="feModalId" placeholder="e.g. FE-39" style="text-transform:uppercase;"><div style="font-size:10px;color:var(--muted);margin-top:3px;" id="feIdHint"></div></div>
+    <div class="field-group"><label>TYPE *</label><select class="input-field" id="feModalType"><option>DCP</option><option>CO2</option><option>AFFF</option><option>DCP Trolley</option></select></div>
+    <div class="field-group"><label>DEPARTMENT *</label><select class="input-field" id="feModalDept"></select></div>
+    <div class="field-group"><label>LOCATION *</label><input type="text" class="input-field" id="feModalLoc" placeholder="e.g. Main Gate inside"></div>
+    <div class="modal-btns" style="margin-top:16px;"><button class="modal-btn secondary" onclick="closeFeModal()">Cancel</button><button class="modal-btn primary" id="feModalSaveBtn" onclick="saveFeModal()">Save</button></div>
+  </div>
+</div>
+<div class="modal-overlay" id="deleteModal">
+  <div class="modal-box" style="max-width:330px;">
+    <h3>🗑️ Remove Unit</h3>
+    <p id="deleteModalMsg" style="margin-bottom:18px;"></p>
+    <div class="modal-btns"><button class="modal-btn secondary" onclick="closeDeleteModal()">Cancel</button><button class="modal-btn" style="background:var(--red);color:#fff;" onclick="confirmDelete()">Remove</button></div>
   </div>
 </div>
 
-<!-- TOAST -->
 <div class="toast" id="toast"></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script>
-// ── CONFIG ──────────────────────────────────────────────────────────────────
-const GAS_URL = 'https://script.google.com/macros/s/AKfycbyKJStx0OfvjQdjQWoBwmUfto9S0mHfViNphdWy--Xd2G10d2HThgwOqOTazTKbz-ST/exec'; // Replace with deployed Apps Script URL
-const ADMIN_PIN = '1234';
-const PAGE_SIZE = 25;
+const GAS_URL='YOUR_GAS_URL_HERE';
+const ADMIN_PIN='1234';
+const PAGE_SIZE=25;
 
-// ── ASSET DATA (seed) ────────────────────────────────────────────────────────
-const ASSET_SEED = [
-  {id:'FE-01',type:'DCP',   dept:'SALES',          loc:'Main Gate Ticket Booth'},
-  {id:'FE-02',type:'DCP',   dept:'SALES',          loc:'Skishop entrance inside'},
-  {id:'FE-03',type:'AFFF',  dept:'SALES',          loc:'Skishop entrance inside'},
-  {id:'FE-04',type:'CO2',   dept:'RESTAURANT',     loc:'Food store Inside'},
-  {id:'FE-05',type:'DCP',   dept:'RESTAURANT',     loc:'Food store Inside'},
-  {id:'FE-06',type:'DCP',   dept:'RESTAURANT',     loc:'Lazeez Restaurant gate near kitchen'},
-  {id:'FE-07',type:'CO2',   dept:'RESTAURANT',     loc:'Lazeez Restaurant gate near kitchen'},
-  {id:'FE-08',type:'DCP',   dept:'RESTAURANT',     loc:'Tandoor'},
-  {id:'FE-09',type:'DCP',   dept:'RESTAURANT',     loc:'New Kitchen'},
-  {id:'FE-10',type:'DCP',   dept:'RESTAURANT',     loc:'Nescafe food truck on Beginner slope'},
-  {id:'FE-11',type:'CO2',   dept:'RESTAURANT',     loc:'Nescafe food truck'},
-  {id:'FE-12',type:'DCP',   dept:'RESTAURANT',     loc:'Nescafe food truck'},
-  {id:'FE-13',type:'DCP',   dept:'RESTAURANT',     loc:'Top station Restaurant inside'},
-  {id:'FE-14',type:'CO2',   dept:'RESTAURANT',     loc:'Top station Restaurant inside'},
-  {id:'FE-15',type:'DCP',   dept:'ADMINISTRATION', loc:'Challets Security Post inside'},
-  {id:'FE-16',type:'CO2',   dept:'ADMINISTRATION', loc:'Challets Rooms Outside'},
-  {id:'FE-17',type:'DCP',   dept:'ADMINISTRATION', loc:'Doctor Clinic Outside'},
-  {id:'FE-18',type:'DCP Trolley',dept:'TECHNICAL', loc:'Chairlift control room front'},
-  {id:'FE-19',type:'DCP',   dept:'TECHNICAL',      loc:'Chairlift Store outside on wall'},
-  {id:'FE-20',type:'CO2',   dept:'TECHNICAL',      loc:'Chairlift Store outside on wall'},
-  {id:'FE-21',type:'AFFF',  dept:'TECHNICAL',      loc:'Chairlift Store outside on wall'},
-  {id:'FE-22',type:'DCP',   dept:'TECHNICAL',      loc:'Chairlift main motor cabin outside'},
-  {id:'FE-23',type:'CO2',   dept:'TECHNICAL',      loc:'Chairlift main motor cabin outside'},
-  {id:'FE-24',type:'DCP',   dept:'TECHNICAL',      loc:'Snow making Pump House Inside'},
-  {id:'FE-25',type:'DCP',   dept:'TECHNICAL',      loc:'Pistenbully Room Inside'},
-  {id:'FE-26',type:'CO2',   dept:'TECHNICAL',      loc:'Pistenbully Room Inside'},
-  {id:'FE-27',type:'DCP',   dept:'TECHNICAL',      loc:'Chairlift top station Platform'},
-  {id:'FE-28',type:'DCP',   dept:'TECHNICAL',      loc:'Generator room UPS Room Inside'},
-  {id:'FE-29',type:'DCP',   dept:'TECHNICAL',      loc:'Generator room UPS Room Outside'},
-  {id:'FE-30',type:'CO2',   dept:'TECHNICAL',      loc:'Generator room Electrical Store Front'},
-  {id:'FE-31',type:'DCP Trolley',dept:'TECHNICAL', loc:'Generator room Electrical Store Front'},
-  {id:'FE-32',type:'DCP',   dept:'TECHNICAL',      loc:'Generator room Transformer room Front'},
-  {id:'FE-33',type:'DCP',   dept:'TECHNICAL',      loc:'Generator room 500 KVA Genset Front'},
-  {id:'FE-34',type:'DCP',   dept:'TECHNICAL',      loc:'Generator room LT Room Office'},
-  {id:'FE-35',type:'DCP',   dept:'TECHNICAL',      loc:'Generator room Emergency'},
-  {id:'FE-36',type:'DCP',   dept:'TECHNICAL',      loc:'Zipline Top Station'},
-  {id:'FE-37',type:'DCP',   dept:'TECHNICAL',      loc:'Zipline Landing Station (PC Top)'},
-  {id:'FE-38',type:'DCP',   dept:'TECHNICAL',      loc:'Giant Swing Container (PC backside)'},
-];
-
-// ── LIVE ASSET LIST (persisted in localStorage) ──────────────────────────────
-// On first load uses ASSET_SEED; subsequent loads use saved list.
-function loadAssets() {
-  try {
-    const saved = localStorage.getItem('mjsr_fe_assets');
-    if (saved) return JSON.parse(saved);
-  } catch(e) {}
-  return ASSET_SEED.map(a => ({...a}));
+async function gasPost(p){
+  if(!GAS_URL||GAS_URL==='YOUR_GAS_URL_HERE') throw new Error('Backend not connected yet.');
+  const r=await fetch(GAS_URL,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify(p)});
+  const t=await r.text();
+  try{return JSON.parse(t);}catch(e){throw new Error('Backend returned unexpected response.');}
 }
-function saveAssets() {
-  try { localStorage.setItem('mjsr_fe_assets', JSON.stringify(ASSETS)); } catch(e) {}
-}
-let ASSETS = loadAssets();
-let selectedCondition = '';
-let selectedGas = '';
-let currentFeId = '';
-let isAdminUnlocked = false;
-let logPage = 1;
-let allLogData = [];
-let currentAssetFilter = 'ALL';
-let qrStream = null;
-let qrAnimFrame = null;
 
-// ── INIT ─────────────────────────────────────────────────────────────────────
-document.addEventListener('DOMContentLoaded', () => {
-  refreshManualSelect();
+// ── SITE DEFINITIONS ──────────────────────────────────────────
+const SITE_DEFS={
+  MJSR:{id:'MJSR',label:'Malam Jabba Ski Resort',short:'MJSR',icon:'🏔',color:'#c0392b',prefix:'FE',placeholder:false,
+    depts:['SALES','RESTAURANT','ADMINISTRATION','TECHNICAL'],
+    seed:[
+      {id:'FE-01',type:'DCP',dept:'SALES',loc:'Main Gate Ticket Booth'},
+      {id:'FE-02',type:'DCP',dept:'SALES',loc:'Skishop entrance inside'},
+      {id:'FE-03',type:'AFFF',dept:'SALES',loc:'Skishop entrance inside'},
+      {id:'FE-04',type:'CO2',dept:'RESTAURANT',loc:'Food store Inside'},
+      {id:'FE-05',type:'DCP',dept:'RESTAURANT',loc:'Food store Inside'},
+      {id:'FE-06',type:'DCP',dept:'RESTAURANT',loc:'Lazeez Restaurant gate near kitchen'},
+      {id:'FE-07',type:'CO2',dept:'RESTAURANT',loc:'Lazeez Restaurant gate near kitchen'},
+      {id:'FE-08',type:'DCP',dept:'RESTAURANT',loc:'Tandoor'},
+      {id:'FE-09',type:'DCP',dept:'RESTAURANT',loc:'New Kitchen'},
+      {id:'FE-10',type:'DCP',dept:'RESTAURANT',loc:'Nescafe food truck on Beginner slope'},
+      {id:'FE-11',type:'CO2',dept:'RESTAURANT',loc:'Nescafe food truck'},
+      {id:'FE-12',type:'DCP',dept:'RESTAURANT',loc:'Nescafe food truck'},
+      {id:'FE-13',type:'DCP',dept:'RESTAURANT',loc:'Top station Restaurant inside'},
+      {id:'FE-14',type:'CO2',dept:'RESTAURANT',loc:'Top station Restaurant inside'},
+      {id:'FE-15',type:'DCP',dept:'ADMINISTRATION',loc:'Challets Security Post inside'},
+      {id:'FE-16',type:'CO2',dept:'ADMINISTRATION',loc:'Challets Rooms Outside'},
+      {id:'FE-17',type:'DCP',dept:'ADMINISTRATION',loc:'Doctor Clinic Outside'},
+      {id:'FE-18',type:'DCP Trolley',dept:'TECHNICAL',loc:'Chairlift control room front'},
+      {id:'FE-19',type:'DCP',dept:'TECHNICAL',loc:'Chairlift Store outside on wall'},
+      {id:'FE-20',type:'CO2',dept:'TECHNICAL',loc:'Chairlift Store outside on wall'},
+      {id:'FE-21',type:'AFFF',dept:'TECHNICAL',loc:'Chairlift Store outside on wall'},
+      {id:'FE-22',type:'DCP',dept:'TECHNICAL',loc:'Chairlift main motor cabin outside'},
+      {id:'FE-23',type:'CO2',dept:'TECHNICAL',loc:'Chairlift main motor cabin outside'},
+      {id:'FE-24',type:'DCP',dept:'TECHNICAL',loc:'Snow making Pump House Inside'},
+      {id:'FE-25',type:'DCP',dept:'TECHNICAL',loc:'Pistenbully Room Inside'},
+      {id:'FE-26',type:'CO2',dept:'TECHNICAL',loc:'Pistenbully Room Inside'},
+      {id:'FE-27',type:'DCP',dept:'TECHNICAL',loc:'Chairlift top station Platform'},
+      {id:'FE-28',type:'DCP',dept:'TECHNICAL',loc:'Generator room UPS Room Inside'},
+      {id:'FE-29',type:'DCP',dept:'TECHNICAL',loc:'Generator room UPS Room Outside'},
+      {id:'FE-30',type:'CO2',dept:'TECHNICAL',loc:'Generator room Electrical Store Front'},
+      {id:'FE-31',type:'DCP Trolley',dept:'TECHNICAL',loc:'Generator room Electrical Store Front'},
+      {id:'FE-32',type:'DCP',dept:'TECHNICAL',loc:'Generator room Transformer room Front'},
+      {id:'FE-33',type:'DCP',dept:'TECHNICAL',loc:'Generator room 500 KVA Genset Front'},
+      {id:'FE-34',type:'DCP',dept:'TECHNICAL',loc:'Generator room LT Room Office'},
+      {id:'FE-35',type:'DCP',dept:'TECHNICAL',loc:'Generator room Emergency'},
+      {id:'FE-36',type:'DCP',dept:'TECHNICAL',loc:'Zipline Top Station'},
+      {id:'FE-37',type:'DCP',dept:'TECHNICAL',loc:'Zipline Landing Station (PC Top)'},
+      {id:'FE-38',type:'DCP',dept:'TECHNICAL',loc:'Giant Swing Container (PC backside)'},
+    ]},
+  SI:{id:'SI',label:'Samsons Inn',short:'Samsons Inn',icon:'🏨',color:'#1a5276',prefix:'SI',placeholder:false,
+    depts:['GENERAL'],
+    seed:[
+      {id:'SI-01',type:'CO2', dept:'GENERAL',loc:'Main Gate'},
+      {id:'SI-02',type:'DCP', dept:'GENERAL',loc:'Reception Outside'},
+      {id:'SI-03',type:'AFFF',dept:'GENERAL',loc:'Scullery Outside Kitchen'},
+      {id:'SI-04',type:'CO2', dept:'GENERAL',loc:'Scullery Outside Kitchen'},
+      {id:'SI-05',type:'CO2', dept:'GENERAL',loc:'First Floor'},
+      {id:'SI-06',type:'DCP', dept:'GENERAL',loc:'Ground Floor'},
+    ]},
+  GV:{id:'GV',label:'Green Valley Adventure Park',short:'Green Valley',icon:'🌿',color:'#1e8449',prefix:'GV',placeholder:false,
+    depts:['GENERAL'],
+    seed:[
+      {id:'GV-01',type:'DCP Trolley',dept:'GENERAL',loc:'Main Ticket Booth'},
+      {id:'GV-02',type:'CO2',dept:'GENERAL',loc:'Main Generator Room'},
+      {id:'GV-03',type:'CO2',dept:'GENERAL',loc:'Security Room Outside'},
+      {id:'GV-04',type:'CO2',dept:'GENERAL',loc:'Staff Kitchen Outside'},
+      {id:'GV-05',type:'DCP',dept:'GENERAL',loc:'Main Store'},
+      {id:'GV-06',type:'CO2',dept:'GENERAL',loc:'Guest Kitchen Container'},
+      {id:'GV-07',type:'DCP',dept:'GENERAL',loc:'Ferris Wheel'},
+      {id:'GV-08',type:'CO2',dept:'GENERAL',loc:'Ferris Wheel Generator Container'},
+    ]},
+  MH:{id:'MH',label:'Malam House',short:'Malam House',icon:'🏡',color:'#6d4c41',prefix:'MH',placeholder:true,depts:['GENERAL'],seed:[]},
+  FG:{id:'FG',label:'Fiza Gut Guesthouse',short:'Fiza Gut',icon:'🏘',color:'#7d3c98',prefix:'FG',placeholder:true,depts:['GENERAL'],seed:[]},
+  VM:{id:'VM',label:'Vehicles & Machinery',short:'Vehicles',icon:'🚗',color:'#2e4057',prefix:'VM',placeholder:false,
+    depts:['VEHICLES','MACHINERY','PISTENBULLY'],
+    seed:[
+      {id:'VM-01',type:'DCP',dept:'VEHICLES',loc:'Dyna — Cab Interior'},
+      {id:'VM-02',type:'DCP',dept:'VEHICLES',loc:'Axio — Cab Interior'},
+      {id:'VM-03',type:'DCP',dept:'VEHICLES',loc:'Premio — Cab Interior'},
+      {id:'VM-04',type:'DCP',dept:'VEHICLES',loc:'Prado — Cab Interior'},
+      {id:'VM-05',type:'DCP',dept:'VEHICLES',loc:'Vigo — Cab Interior'},
+      {id:'VM-06',type:'DCP',dept:'VEHICLES',loc:'Ambulance — Cab Interior'},
+      {id:'VM-07',type:'DCP',dept:'MACHINERY',loc:'Front Loader FL-01 — Cab Interior'},
+      {id:'VM-08',type:'DCP',dept:'MACHINERY',loc:'Tractor/Snow Blower TB-01 — Cab Interior'},
+      {id:'VM-09',type:'DCP',dept:'PISTENBULLY',loc:'PistenBully PB-400W — Cab Interior'},
+    ]},
+};
 
-  // Set today's date as default inspection date
-  const today = new Date().toISOString().split('T')[0];
-  document.getElementById('inspectionDate').value = today;
+// ── STATE ─────────────────────────────────────────────────────
+let currentSiteId=null,ASSETS=[],selectedCondition='',selectedGas='',currentFeId='';
+let isAdminUnlocked=false,cfgUnlocked=false,cfgPendingAction=null,cfgLockTimer=null;
+let editingFeId=null,deletingFeId=null,logPage=1,allLogData=[],currentAssetFilter='ALL',currentQrFilter='ALL';
+let qrStream=null,qrAnimFrame=null;
 
-  // Pre-calculate next year for expiry default
-  const nextYear = new Date();
-  nextYear.setFullYear(nextYear.getFullYear() + 1);
-  document.getElementById('expiryDate').value = nextYear.toISOString().split('T')[0];
+// ── ASSET PERSISTENCE ─────────────────────────────────────────
+function loadSiteAssets(siteId){try{const s=localStorage.getItem('fe_assets_'+siteId);if(s)return JSON.parse(s);}catch(e){}return SITE_DEFS[siteId].seed.map(a=>({...a}));}
+function saveSiteAssets(siteId,assets){try{localStorage.setItem('fe_assets_'+siteId,JSON.stringify(assets));}catch(e){}}
 
-  renderAssetList('ALL');
-  loadDashboard();
-  renderConfigList();
-
-  // Handle QR param in URL (when scanned from a QR code label)
-  const params = new URLSearchParams(window.location.search);
-  const feId = params.get('fe');
-  if (feId) {
-    openInspectForm(feId.toUpperCase());
-    showTab('scan');
-  }
+// ── INIT ──────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded',()=>{
+  buildSiteSelector();
+  const p=new URLSearchParams(window.location.search);
+  const s=p.get('site'),f=p.get('fe');
+  if(s&&SITE_DEFS[s]){selectSite(s);if(f){openInspectForm(f.toUpperCase());showTab('scan');}}
 });
 
-function refreshManualSelect() {
-  const sel = document.getElementById('manualSelect');
-  sel.innerHTML = '<option value="">— Choose extinguisher —</option>';
-  ASSETS.forEach(a => {
-    const opt = document.createElement('option');
-    opt.value = a.id;
-    opt.textContent = `${a.id} — ${a.type} — ${a.loc}`;
-    sel.appendChild(opt);
+function buildSiteSelector(){
+  const grid=document.getElementById('ssGrid');
+  grid.innerHTML='';
+  Object.values(SITE_DEFS).forEach(site=>{
+    const assets=loadSiteAssets(site.id);
+    const card=document.createElement('div');
+    card.className='ss-card'+(site.placeholder?' placeholder':'');
+    card.innerHTML=`<div class="ss-card-icon">${site.icon}</div>
+      <div class="ss-card-name">${site.label}</div>
+      <div class="ss-card-row"><div class="ss-card-dot" style="background:${site.placeholder?'#aaa':site.color};"></div>
+      <div class="ss-card-count">${site.placeholder?'Pending setup':assets.length+' units'}</div></div>`;
+    if(!site.placeholder) card.onclick=()=>selectSite(site.id);
+    grid.appendChild(card);
   });
 }
 
-// Called after any asset add/edit/delete to keep all tabs in sync
-function refreshAllViews() {
-  saveAssets();
+function selectSite(siteId){
+  const site=SITE_DEFS[siteId];
+  currentSiteId=siteId; ASSETS=loadSiteAssets(siteId);
+  document.documentElement.style.setProperty('--site-color',site.color);
+  document.getElementById('headerIcon').textContent=site.icon;
+  document.getElementById('headerSub').textContent=site.label+' — Samsons Group';
+  document.getElementById('siteSelector').style.display='none';
+  document.getElementById('mainPortal').style.display='block';
+  isAdminUnlocked=false; cfgUnlocked=false;
+  selectedCondition=''; selectedGas=''; currentFeId='';
+  currentAssetFilter='ALL'; currentQrFilter='ALL';
+  logPage=1; allLogData=[];
+  document.getElementById('adminPanel').classList.remove('active');
+  initDates(); refreshManualSelect();
+  renderAssetFilters(); renderAssetList('ALL');
+  renderQRFilters(); document.getElementById('qrGrid').innerHTML='';
+  renderConfigDeptFilter(); renderConfigList(); loadDashboard();
+  showTab('scan');
+  if(site.placeholder) showPlaceholder();
+}
+
+function goHome(){
+  document.getElementById('mainPortal').style.display='none';
+  document.getElementById('siteSelector').style.display='flex';
+  buildSiteSelector(); currentSiteId=null;
+}
+
+function showPlaceholder(){
+  const site=SITE_DEFS[currentSiteId];
+  document.getElementById('scanHero').innerHTML=`
+    <div class="placeholder-banner">
+      <div class="ph-icon">${site.icon}</div>
+      <h3>${site.label}</h3>
+      <p>The asset register for this property has not been set up yet.<br>
+         Use the <strong>Config</strong> tab to add extinguisher units, then print QR labels.</p>
+      <div class="ph-badge">Pending Setup</div>
+    </div>`;
+  document.getElementById('inspectForm').style.display='none';
+}
+
+function initDates(){
+  const t=new Date().toISOString().split('T')[0];
+  document.getElementById('inspectionDate').value=t;
+  const ny=new Date(); ny.setFullYear(ny.getFullYear()+1);
+  document.getElementById('expiryDate').value=ny.toISOString().split('T')[0];
+}
+
+function refreshAllViews(){
+  saveSiteAssets(currentSiteId,ASSETS);
+  refreshManualSelect(); renderAssetFilters(); renderAssetList(currentAssetFilter);
+  renderQRFilters(); document.getElementById('qrGrid').innerHTML='';
+  renderConfigDeptFilter(); renderConfigList();
+  document.getElementById('cfgSubtitle').textContent=ASSETS.length+' units registered';
+  buildSiteSelector();
+}
+
+function refreshManualSelect(){
+  const sel=document.getElementById('manualSelect');
+  sel.innerHTML='<option value="">— Choose extinguisher —</option>';
+  ASSETS.forEach(a=>{const o=document.createElement('option');o.value=a.id;o.textContent=`${a.id} — ${a.type} — ${a.loc}`;sel.appendChild(o);});
+}
+
+// ── TABS ──────────────────────────────────────────────────────
+function showTab(tab){
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('view-'+tab).classList.add('active');
+  document.getElementById('tab-'+tab).classList.add('active');
+  if(tab==='log') loadLog();
+  if(tab==='dashboard') loadDashboard();
+  if(tab==='qrlabels') renderQRGrid();
+  if(tab==='config') renderConfigList();
+}
+
+// ── INSPECT ───────────────────────────────────────────────────
+function showScanHero(){
+  document.getElementById('scanHero').innerHTML=`
+    <div class="scan-hero">
+      <div class="hero-icon">🧯</div><h2>Fire Extinguisher Inspection</h2>
+      <p>Scan the QR code on the extinguisher to begin.</p>
+      <button class="btn-scan" onclick="openScanner()"><span style="font-size:18px;">📷</span> Scan QR Code</button>
+    </div>
+    <div class="manual-section"><label>OR SELECT MANUALLY</label>
+      <select class="manual-select" id="manualSelect"><option value="">— Choose extinguisher —</option></select>
+      <button class="btn-manual" onclick="openManual()">Open Inspection Form</button>
+    </div>`;
   refreshManualSelect();
-  renderAssetList(currentAssetFilter);
-  renderConfigList();
-  // Force QR grid to re-render next time that tab is visited
-  document.getElementById('qrGrid').innerHTML = '';
-  // Update QR filter counts
-  refreshQRFilterCounts();
-  // Update config subtitle
-  document.getElementById('cfgSubtitle').textContent = ASSETS.length + ' units registered';
+  document.getElementById('inspectForm').style.display='none';
+  selectedCondition=''; selectedGas=''; currentFeId='';
 }
 
-// ── TAB NAVIGATION ────────────────────────────────────────────────────────────
-function showTab(tab) {
-  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
-  document.getElementById('view-' + tab).classList.add('active');
-  document.getElementById('tab-' + tab).classList.add('active');
-  if (tab === 'log')       loadLog();
-  if (tab === 'dashboard') loadDashboard();
-  if (tab === 'qrlabels')  renderQRGrid();
-  if (tab === 'config')    renderConfigList();
-}
+function openManual(){const v=document.getElementById('manualSelect').value;if(!v){showToast('Please select an extinguisher','error');return;}openInspectForm(v);}
 
-// ── SCAN HERO / FORM TOGGLE ───────────────────────────────────────────────────
-function showScanHero() {
-  document.getElementById('scanHero').style.display = 'block';
-  document.getElementById('inspectForm').style.display = 'none';
-  selectedCondition = '';
-  selectedGas = '';
-  currentFeId = '';
-}
-
-function openManual() {
-  const val = document.getElementById('manualSelect').value;
-  if (!val) { showToast('Please select an extinguisher', 'error'); return; }
-  openInspectForm(val);
-}
-
-function openInspectForm(feId) {
-  const asset = ASSETS.find(a => a.id === feId);
-  if (!asset) { showToast('Extinguisher not found: ' + feId, 'error'); return; }
-
-  currentFeId = feId;
-  selectedCondition = '';
-  selectedGas = '';
-
-  document.getElementById('formFeId').textContent  = asset.id;
-  document.getElementById('formFeLoc').textContent = asset.loc;
-  document.getElementById('formFeType').textContent = asset.type;
-  document.getElementById('formFeDept').textContent = asset.dept;
-  document.getElementById('comments').value = '';
-  document.getElementById('inspectorName').value = '';
-
-  // Reset buttons
-  ['good','fair','faulty'].forEach(c => {
-    document.getElementById('cond-' + c).className = 'cond-btn';
-  });
-  ['full','partial','empty'].forEach(g => {
-    document.getElementById('gas-' + g).className = 'gas-btn';
-  });
-
-  const today = new Date().toISOString().split('T')[0];
-  document.getElementById('inspectionDate').value = today;
-  const nextYear = new Date();
-  nextYear.setFullYear(nextYear.getFullYear() + 1);
-  document.getElementById('expiryDate').value = nextYear.toISOString().split('T')[0];
-
-  document.getElementById('scanHero').style.display = 'none';
-  document.getElementById('inspectForm').style.display = 'block';
-  window.scrollTo(0, 0);
-}
-
-// ── CONDITION / GAS SELECTION ─────────────────────────────────────────────────
-function selectCondition(val) {
-  selectedCondition = val;
-  const map = { Good: 'good', Fair: 'fair', Faulty: 'faulty' };
-  const clsMap = { Good: 'selected-good', Fair: 'selected-fair', Faulty: 'selected-faulty' };
-  ['good','fair','faulty'].forEach(c => {
-    document.getElementById('cond-' + c).className = 'cond-btn';
-  });
-  document.getElementById('cond-' + map[val]).className = 'cond-btn ' + clsMap[val];
-}
-
-function selectGas(val) {
-  selectedGas = val;
-  const map = { Full: 'full', Partial: 'partial', Empty: 'empty' };
-  const clsMap = { Full: 'selected-full', Partial: 'selected-partial', Empty: 'selected-empty' };
-  ['full','partial','empty'].forEach(g => {
-    document.getElementById('gas-' + g).className = 'gas-btn';
-  });
-  document.getElementById('gas-' + map[val]).className = 'gas-btn ' + clsMap[val];
-}
-
-// ── SUBMISSION ────────────────────────────────────────────────────────────────
-async function submitInspection() {
-  if (!selectedCondition) { showToast('Please select Condition', 'error'); return; }
-  if (!selectedGas)        { showToast('Please select Gas Level', 'error'); return; }
-  const inspector = document.getElementById('inspectorName').value.trim();
-  if (!inspector)          { showToast('Please enter Inspector Name', 'error'); return; }
-
-  const asset = ASSETS.find(a => a.id === currentFeId);
-  const payload = {
-    action:         'submitInspection',
-    feId:           currentFeId,
-    feType:         asset.type,
-    department:     asset.dept,
-    location:       asset.loc,
-    condition:      selectedCondition,
-    gasLevel:       selectedGas,
-    inspectionDate: document.getElementById('inspectionDate').value,
-    expiryDate:     document.getElementById('expiryDate').value,
-    inspector:      inspector,
-    comments:       document.getElementById('comments').value.trim(),
-    timestamp:      new Date().toISOString(),
-  };
-
-  const btn = document.getElementById('submitBtn');
-  btn.disabled = true;
-  btn.innerHTML = '<span class="spin" style="width:18px;height:18px;border-width:2px;display:inline-block;border-color:#fff3;border-top-color:#fff;border-radius:50%;animation:spin 0.8s linear infinite;"></span> Submitting...';
-
-  try {
-    const resp = await fetch(GAS_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'text/plain' },
-      body: JSON.stringify(payload),
-    });
-    const data = await resp.json();
-    if (data.status === 'ok') {
-      showToast('✓ Inspection submitted successfully');
-      showScanHero();
-    } else {
-      throw new Error(data.message || 'Unknown error');
-    }
-  } catch (err) {
-    showToast('Error: ' + err.message, 'error');
-    btn.disabled = false;
-    btn.innerHTML = '<span>✓</span> Submit Inspection';
-  }
-}
-
-// ── ASSET LIST ────────────────────────────────────────────────────────────────
-function filterAssets(dept) {
-  currentAssetFilter = dept;
-  document.querySelectorAll('.asset-filter-btn').forEach(b => {
-    b.classList.toggle('active', b.dataset.filter === dept);
-  });
-  renderAssetList(dept);
-}
-
-function renderAssetList(dept) {
-  const list = document.getElementById('assetList');
-  const filtered = dept === 'ALL' ? ASSETS : ASSETS.filter(a => a.dept === dept);
-  const typeIconMap = { 'DCP': '🔴', 'AFFF': '🟢', 'CO2': '⚫', 'DCP Trolley': '🛒' };
-  const typeClass  = a => a.type === 'DCP Trolley' ? 'TROLLEY' : a.type.replace(/\s/g,'');
-
-  list.innerHTML = filtered.map(a => `
-    <div class="asset-row" onclick="openInspectForm('${a.id}'); showTab('scan');">
-      <div class="asset-row-icon">${typeIconMap[a.type] || '🧯'}</div>
-      <div class="asset-row-info">
-        <div class="asset-row-id">${a.id}</div>
-        <div class="asset-row-loc">${a.loc}</div>
-        <div class="asset-row-type ${typeClass(a)}">${a.type}</div>
-      </div>
-      <div style="text-align:right; font-size:11px; color:var(--muted);">${a.dept.charAt(0)+a.dept.slice(1).toLowerCase()}</div>
-    </div>
-  `).join('');
-}
-
-// ── LOG ───────────────────────────────────────────────────────────────────────
-async function loadLog() {
-  const listEl = document.getElementById('logList');
-  listEl.innerHTML = '<div class="loading-msg"><div class="spin"></div><br>Loading...</div>';
-  document.getElementById('logPagination').innerHTML = '';
-
-  const dept      = document.getElementById('logFilterDept').value;
-  const condition = document.getElementById('logFilterCondition').value;
-
-  try {
-    const resp = await fetch(GAS_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'text/plain' },
-      body: JSON.stringify({ action: 'getLog', dept, condition }),
-    });
-    const data = await resp.json();
-    allLogData = data.rows || [];
-    logPage = 1;
-    renderLog();
-  } catch(err) {
-    listEl.innerHTML = `<div class="empty-msg"><div class="empty-icon">⚠️</div>Could not load log.<br><small>${err.message}</small></div>`;
-  }
-}
-
-function renderLog() {
-  const listEl = document.getElementById('logList');
-  const pagEl  = document.getElementById('logPagination');
-  if (!allLogData.length) {
-    listEl.innerHTML = '<div class="empty-msg"><div class="empty-icon">📋</div>No inspections recorded yet.</div>';
-    pagEl.innerHTML = '';
-    return;
-  }
-
-  const totalPages = Math.ceil(allLogData.length / PAGE_SIZE);
-  const start = (logPage - 1) * PAGE_SIZE;
-  const pageData = allLogData.slice(start, start + PAGE_SIZE);
-
-  const condBadge = c => `<span class="badge badge-${(c||'').toLowerCase()}">${c}</span>`;
-  const gasBadge  = g => `<span class="badge badge-${(g||'').toLowerCase()}">${g}</span>`;
-
-  listEl.innerHTML = `<div class="results-count">${allLogData.length} records</div>` +
-    pageData.map((r, i) => `
-    <div class="log-item ${(r.condition||'').toLowerCase()}" onclick="toggleLogDetail(${start+i})">
-      <div class="log-item-top">
-        <div>
-          <div class="log-item-id">${r.feId || ''}</div>
-          <div class="log-item-loc">${r.location || ''}</div>
-        </div>
-        <div class="log-item-date">${r.inspectionDate || ''}</div>
-      </div>
-      <div class="log-item-badges">
-        ${condBadge(r.condition)}
-        ${gasBadge(r.gasLevel)}
-        <span class="badge badge-dept">${r.department || ''}</span>
-      </div>
-      <div class="log-detail" id="log-detail-${start+i}">
-        <div class="log-detail-row">Inspector: <span>${r.inspector || '—'}</span></div>
-        <div class="log-detail-row">Type: <span>${r.feType || '—'}</span></div>
-        <div class="log-detail-row">Next Expiry: <span>${r.expiryDate || '—'}</span></div>
-        <div class="log-detail-row">Comments: <span>${r.comments || '—'}</span></div>
-      </div>
-    </div>
-  `).join('');
-
-  // Pagination
-  if (totalPages > 1) {
-    let pag = `<button class="page-btn" onclick="goLogPage(${logPage-1})" ${logPage===1?'disabled':''}>‹</button>`;
-    for (let p = 1; p <= totalPages; p++) {
-      pag += `<button class="page-btn ${p===logPage?'active':''}" onclick="goLogPage(${p})">${p}</button>`;
-    }
-    pag += `<button class="page-btn" onclick="goLogPage(${logPage+1})" ${logPage===totalPages?'disabled':''}>›</button>`;
-    pagEl.innerHTML = pag;
-  } else {
-    pagEl.innerHTML = '';
-  }
-}
-
-function toggleLogDetail(idx) {
-  const el = document.getElementById('log-detail-' + idx);
-  if (el) el.classList.toggle('open');
-}
-
-function goLogPage(p) {
-  logPage = p;
-  renderLog();
+function openInspectForm(feId){
+  const a=ASSETS.find(x=>x.id===feId);
+  if(!a){showToast('Not found: '+feId,'error');return;}
+  currentFeId=feId; selectedCondition=''; selectedGas='';
+  document.getElementById('formFeId').textContent=a.id;
+  document.getElementById('formFeLoc').textContent=a.loc;
+  document.getElementById('formFeType').textContent=a.type;
+  document.getElementById('formFeDept').textContent=a.dept;
+  document.getElementById('comments').value='';
+  document.getElementById('inspectorName').value='';
+  ['good','fair','faulty'].forEach(c=>document.getElementById('cond-'+c).className='cond-btn');
+  ['full','partial','empty'].forEach(g=>document.getElementById('gas-'+g).className='gas-btn');
+  initDates();
+  document.getElementById('scanHero').style.display='none';
+  document.getElementById('inspectForm').style.display='block';
   window.scrollTo(0,0);
 }
 
-// ── DASHBOARD ─────────────────────────────────────────────────────────────────
-async function loadDashboard() {
-  try {
-    const resp = await fetch(GAS_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'text/plain' },
-      body: JSON.stringify({ action: 'getDashboard' }),
-    });
-    const data = await resp.json();
-    renderDashboard(data);
-  } catch(err) {
-    // Silent fail on dashboard — basic counts still shown
-  }
+function selectCondition(v){
+  selectedCondition=v;
+  const m={Good:'good',Fair:'fair',Faulty:'faulty'},c={Good:'selected-good',Fair:'selected-fair',Faulty:'selected-faulty'};
+  ['good','fair','faulty'].forEach(x=>document.getElementById('cond-'+x).className='cond-btn');
+  document.getElementById('cond-'+m[v]).className='cond-btn '+c[v];
+}
+function selectGas(v){
+  selectedGas=v;
+  const m={Full:'full',Partial:'partial',Empty:'empty'},c={Full:'selected-full',Partial:'selected-partial',Empty:'selected-empty'};
+  ['full','partial','empty'].forEach(x=>document.getElementById('gas-'+x).className='gas-btn');
+  document.getElementById('gas-'+m[v]).className='gas-btn '+c[v];
 }
 
-function renderDashboard(data) {
-  if (!data) return;
-  const d = data.summary || {};
-  if (d.inspected !== undefined) document.getElementById('ds-inspected').textContent = d.inspected;
-  if (d.faulty    !== undefined) document.getElementById('ds-faulty').textContent    = d.faulty;
-  if (d.expiring  !== undefined) document.getElementById('ds-expiring').textContent  = d.expiring;
-
-  // Dept bars
-  const deptData = data.byDept || {};
-  const depts = ['SALES','RESTAURANT','ADMINISTRATION','TECHNICAL'];
-  const totals = { SALES:3, RESTAURANT:11, ADMINISTRATION:3, TECHNICAL:21 };
-  const deptNames = { SALES:'Sales', RESTAURANT:'Restaurant', ADMINISTRATION:'Administration', TECHNICAL:'Technical' };
-  const barsEl = document.getElementById('deptBars');
-  barsEl.innerHTML = depts.map(dept => {
-    const inspected = deptData[dept] || 0;
-    const total     = totals[dept];
-    const pct       = total ? Math.round((inspected / total) * 100) : 0;
-    return `
-      <div class="dept-bar-row">
-        <div class="dept-bar-label">
-          <span class="dept-name">${deptNames[dept]}</span>
-          <span class="dept-pct">${inspected}/${total} inspected (${pct}%)</span>
-        </div>
-        <div class="dept-bar-track"><div class="dept-bar-fill" style="width:${pct}%"></div></div>
-      </div>
-    `;
-  }).join('');
-
-  // Admin expiry list
-  if (isAdminUnlocked && data.expiry) {
-    renderExpiryList(data.expiry);
-  }
+async function submitInspection(){
+  if(!selectedCondition){showToast('Please select Condition','error');return;}
+  if(!selectedGas){showToast('Please select Gas Level','error');return;}
+  const insp=document.getElementById('inspectorName').value.trim();
+  if(!insp){showToast('Please enter Inspector Name','error');return;}
+  const a=ASSETS.find(x=>x.id===currentFeId);
+  const payload={action:'submitInspection',site:currentSiteId,siteLabel:SITE_DEFS[currentSiteId].label,
+    feId:currentFeId,feType:a.type,department:a.dept,location:a.loc,
+    condition:selectedCondition,gasLevel:selectedGas,
+    inspectionDate:document.getElementById('inspectionDate').value,
+    expiryDate:document.getElementById('expiryDate').value,
+    inspector:insp,comments:document.getElementById('comments').value.trim(),
+    timestamp:new Date().toISOString()};
+  const btn=document.getElementById('submitBtn');
+  btn.disabled=true; btn.innerHTML='<span style="display:inline-block;width:16px;height:16px;border:2px solid rgba(255,255,255,0.3);border-top-color:#fff;border-radius:50%;animation:spin .8s linear infinite;"></span> Submitting...';
+  try{
+    const data=await gasPost(payload);
+    if(data.status==='ok'){showToast('✓ Inspection submitted');showScanHero();}
+    else throw new Error(data.message||'Unknown error');
+  }catch(err){showToast(err.message.includes('not connected')?'Backend not connected yet':'Error: '+err.message,'error');}
+  btn.disabled=false; btn.innerHTML='<span>✓</span> Submit Inspection';
 }
 
-function renderExpiryList(expiryRows) {
-  const el = document.getElementById('expiryList');
-  if (!expiryRows || !expiryRows.length) {
-    el.innerHTML = '<div class="empty-msg"><div class="empty-icon">✅</div>No expiry alerts.</div>';
-    return;
-  }
-  const today = new Date();
-  el.innerHTML = expiryRows.map(r => {
-    const exp = new Date(r.expiryDate);
-    const diffDays = Math.round((exp - today) / 86400000);
-    let cls = 'ok', label = 'Valid';
-    if (diffDays < 0)   { cls = 'expired';  label = 'EXPIRED'; }
-    else if (diffDays <= 30) { cls = 'due-soon'; label = `${diffDays}d left`; }
-    return `
-      <div class="expiry-item ${cls}">
-        <div class="expiry-info">
-          <div class="exp-id">${r.feId}</div>
-          <div class="exp-loc">${r.location}</div>
-        </div>
-        <div class="expiry-date ${cls}">${label}</div>
-      </div>
-    `;
+// ── ASSETS TAB ────────────────────────────────────────────────
+function renderAssetFilters(){
+  const depts=['ALL',...SITE_DEFS[currentSiteId].depts];
+  document.getElementById('assetFilterRow').innerHTML=depts.map(d=>{
+    const c=d==='ALL'?ASSETS.length:ASSETS.filter(a=>a.dept===d).length;
+    return `<button class="asset-filter-btn${d==='ALL'?' active':''}" onclick="filterAssets('${d}')" data-filter="${d}">${d==='ALL'?'All ('+c+')':d.charAt(0)+d.slice(1).toLowerCase()+' ('+c+')'}</button>`;
   }).join('');
 }
-
-// ── PIN / ADMIN ───────────────────────────────────────────────────────────────
-function openPinModal() {
-  if (isAdminUnlocked) { showTab('dashboard'); return; }
-  document.getElementById('pinInput').value = '';
-  document.getElementById('pinModal').classList.add('open');
-  setTimeout(() => document.getElementById('pinInput').focus(), 200);
+function filterAssets(dept){
+  currentAssetFilter=dept;
+  document.querySelectorAll('[data-filter]').forEach(b=>b.classList.toggle('active',b.dataset.filter===dept));
+  renderAssetList(dept);
 }
-function closePinModal() { document.getElementById('pinModal').classList.remove('open'); }
-function checkPin() {
-  const val = document.getElementById('pinInput').value;
-  if (val === ADMIN_PIN) {
-    isAdminUnlocked = true;
-    closePinModal();
-    document.getElementById('adminPanel').classList.add('active');
-    showTab('dashboard');
-    loadDashboard();
-    showToast('Admin access granted');
-  } else {
-    const inp = document.getElementById('pinInput');
-    inp.classList.add('shake');
-    inp.value = '';
-    setTimeout(() => inp.classList.remove('shake'), 500);
-    showToast('Incorrect PIN', 'error');
-  }
-}
-function logoutAdmin() {
-  isAdminUnlocked = false;
-  document.getElementById('adminPanel').classList.remove('active');
-  showToast('Logged out of admin');
-}
-
-// ── QR SCANNER ────────────────────────────────────────────────────────────────
-async function openScanner() {
-  const overlay = document.getElementById('qrOverlay');
-  overlay.style.display = 'flex';
-  try {
-    qrStream = await navigator.mediaDevices.getUserMedia({
-      video: { facingMode: 'environment' }
-    });
-    const video = document.getElementById('qrVideo');
-    video.srcObject = qrStream;
-    video.play();
-    scanFrame(video);
-  } catch(err) {
-    closeScanner();
-    showToast('Camera access denied. Use manual selection.', 'error');
-  }
-}
-
-function closeScanner() {
-  document.getElementById('qrOverlay').style.display = 'none';
-  if (qrStream) { qrStream.getTracks().forEach(t => t.stop()); qrStream = null; }
-  if (qrAnimFrame) { cancelAnimationFrame(qrAnimFrame); qrAnimFrame = null; }
-}
-
-function scanFrame(video) {
-  if (!qrStream) return;
-  if (!video.videoWidth) { qrAnimFrame = requestAnimationFrame(() => scanFrame(video)); return; }
-
-  const canvas = document.createElement('canvas');
-  canvas.width  = video.videoWidth;
-  canvas.height = video.videoHeight;
-  const ctx = canvas.getContext('2d');
-  ctx.drawImage(video, 0, 0);
-
-  try {
-    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-    // Use BarcodeDetector if available (modern browsers)
-    if ('BarcodeDetector' in window) {
-      const detector = new BarcodeDetector({ formats: ['qr_code'] });
-      detector.detect(canvas).then(codes => {
-        if (codes.length > 0) {
-          const raw = codes[0].rawValue;
-          handleQrResult(raw);
-        } else {
-          qrAnimFrame = requestAnimationFrame(() => scanFrame(video));
-        }
-      });
-    } else {
-      // Fallback: show manual note
-      qrAnimFrame = requestAnimationFrame(() => scanFrame(video));
-    }
-  } catch(e) {
-    qrAnimFrame = requestAnimationFrame(() => scanFrame(video));
-  }
-}
-
-function handleQrResult(raw) {
-  closeScanner();
-  // Expect: https://samsons-digital.github.io/mjsr-fire-ext/?fe=FE-01
-  // or simply "FE-01"
-  let feId = raw;
-  try {
-    const url = new URL(raw);
-    feId = url.searchParams.get('fe') || raw;
-  } catch(e) { /* not a URL, use raw */ }
-
-  feId = feId.trim().toUpperCase();
-  const asset = ASSETS.find(a => a.id === feId);
-  if (asset) {
-    openInspectForm(feId);
-    showTab('scan');
-  } else {
-    showToast('QR not recognised: ' + feId, 'error');
-  }
-}
-
-// ── QR FILTER COUNT REFRESH ───────────────────────────────────────────────────
-function refreshQRFilterCounts() {
-  const depts = ['SALES','RESTAURANT','ADMINISTRATION','TECHNICAL'];
-  const deptLabels = { SALES:'Sales', RESTAURANT:'Restaurant', ADMINISTRATION:'Administration', TECHNICAL:'Technical' };
-  document.querySelector('[data-qrfilter="ALL"]').textContent = `All (${ASSETS.length})`;
-  depts.forEach(d => {
-    const btn = document.querySelector(`[data-qrfilter="${d}"]`);
-    if (btn) btn.textContent = deptLabels[d];
-  });
-}
-
-// ── CONFIG PIN GATE ───────────────────────────────────────────────────────────
-let cfgUnlocked = false;
-let cfgPendingAction = null;  // { action: 'add'|'edit'|'delete', id: feId|null }
-
-function cfgPinGate(action, id) {
-  if (cfgUnlocked) {
-    dispatchCfgAction(action, id);
-    return;
-  }
-  cfgPendingAction = { action, id };
-  document.getElementById('cfgPinInput').value = '';
-  document.getElementById('cfgPinHint').textContent = '';
-  document.getElementById('cfgPinModal').classList.add('open');
-  setTimeout(() => document.getElementById('cfgPinInput').focus(), 200);
-}
-
-function checkCfgPin() {
-  const val = document.getElementById('cfgPinInput').value;
-  if (val === ADMIN_PIN) {
-    cfgUnlocked = true;
-    closeCfgPinModal();
-    if (cfgPendingAction) {
-      dispatchCfgAction(cfgPendingAction.action, cfgPendingAction.id);
-      cfgPendingAction = null;
-    }
-    // Auto-lock after 5 minutes of inactivity
-    clearTimeout(cfgLockTimer);
-    cfgLockTimer = setTimeout(() => { cfgUnlocked = false; }, 5 * 60 * 1000);
-  } else {
-    const inp = document.getElementById('cfgPinInput');
-    inp.classList.add('shake');
-    inp.value = '';
-    document.getElementById('cfgPinHint').textContent = 'Incorrect PIN — try again';
-    setTimeout(() => inp.classList.remove('shake'), 500);
-  }
-}
-let cfgLockTimer = null;
-
-function closeCfgPinModal() {
-  document.getElementById('cfgPinModal').classList.remove('open');
-  cfgPendingAction = null;
-}
-
-function dispatchCfgAction(action, id) {
-  if (action === 'add')    openAddModal();
-  if (action === 'edit')   openEditModal(id);
-  if (action === 'delete') openDeleteModal(id);
-}
-
-// ── CONFIG: RENDER LIST ───────────────────────────────────────────────────────
-function renderConfigList() {
-  const search = (document.getElementById('cfgSearch')?.value || '').toLowerCase();
-  const deptF  = document.getElementById('cfgDeptFilter')?.value || '';
-
-  const filtered = ASSETS.filter(a => {
-    const matchSearch = !search ||
-      a.id.toLowerCase().includes(search) ||
-      a.loc.toLowerCase().includes(search) ||
-      a.type.toLowerCase().includes(search);
-    const matchDept = !deptF || a.dept === deptF;
-    return matchSearch && matchDept;
-  });
-
-  const list = document.getElementById('cfgList');
-  document.getElementById('cfgSubtitle').textContent = `${ASSETS.length} units registered`;
-
-  if (!filtered.length) {
-    list.innerHTML = `<div class="cfg-no-results"><div class="cfg-no-icon">🔍</div>No units match your search.</div>`;
-    return;
-  }
-
-  const typeIconMap = { 'DCP':'🔴', 'AFFF':'🟢', 'CO2':'⚫', 'DCP Trolley':'🛒' };
-
-  list.innerHTML = filtered.map(a => `
-    <div class="cfg-item" style="border-left-color: var(--red);">
-      <div class="cfg-item-top" onclick="this.nextElementSibling.style.display = this.nextElementSibling.style.display==='flex' ? 'none' : 'flex'">
-        <div class="cfg-item-icon">${typeIconMap[a.type] || '🧯'}</div>
-        <div class="cfg-item-info">
-          <div class="cfg-item-id">${a.id}</div>
-          <div class="cfg-item-loc">${a.loc}</div>
-          <div class="cfg-item-tags">
-            <span class="cfg-tag cfg-tag-type">${a.type}</span>
-            <span class="cfg-tag cfg-tag-dept">${a.dept.charAt(0)+a.dept.slice(1).toLowerCase()}</span>
-          </div>
-        </div>
-        <div style="color:var(--muted); font-size:18px; flex-shrink:0;">›</div>
+function renderAssetList(dept){
+  const list=document.getElementById('assetList');
+  const filtered=dept==='ALL'?ASSETS:ASSETS.filter(a=>a.dept===dept);
+  const im={'DCP':'🔴','AFFF':'🟢','CO2':'⚫','DCP Trolley':'🛒'};
+  if(!filtered.length){list.innerHTML='<div class="empty-msg"><div class="empty-icon">🧯</div>No units yet. Use Config to add.</div>';return;}
+  list.innerHTML=filtered.map(a=>`
+    <div class="asset-row" onclick="openInspectForm('${a.id}');showTab('scan');">
+      <div class="asset-row-icon">${im[a.type]||'🧯'}</div>
+      <div class="asset-row-info">
+        <div class="asset-row-id">${a.id}</div>
+        <div class="asset-row-loc">${a.loc}</div>
+        <div class="asset-row-type">${a.type}</div>
       </div>
-      <div class="cfg-item-actions" style="display:none;">
-        <button class="cfg-btn-edit" onclick="cfgPinGate('edit','${a.id}')">✏️ Edit</button>
-        <button class="cfg-btn-delete" onclick="cfgPinGate('delete','${a.id}')">🗑️ Remove</button>
+      <div style="font-size:10px;color:var(--muted);">${a.dept.charAt(0)+a.dept.slice(1).toLowerCase()}</div>
+    </div>`).join('');
+}
+
+// ── LOG ───────────────────────────────────────────────────────
+function populateLogDeptFilter(){
+  const depts=SITE_DEFS[currentSiteId].depts;
+  document.getElementById('logFilterDept').innerHTML='<option value="">All Departments</option>'+
+    depts.map(d=>`<option value="${d}">${d.charAt(0)+d.slice(1).toLowerCase()}</option>`).join('');
+}
+async function loadLog(){
+  populateLogDeptFilter();
+  const listEl=document.getElementById('logList');
+  listEl.innerHTML='<div class="loading-msg"><div class="spin"></div><br>Loading...</div>';
+  document.getElementById('logPagination').innerHTML='';
+  const dept=document.getElementById('logFilterDept').value;
+  const cond=document.getElementById('logFilterCondition').value;
+  try{
+    const data=await gasPost({action:'getLog',site:currentSiteId,dept,condition:cond});
+    allLogData=data.rows||[]; logPage=1; renderLog();
+  }catch(err){
+    const nc=err.message.includes('not connected');
+    listEl.innerHTML=`<div class="empty-msg"><div class="empty-icon">${nc?'🔌':'⚠️'}</div>${nc?'Backend not connected yet.<br><small>Add the GAS URL to go live.</small>':'Could not load log.<br><small>'+err.message+'</small>'}</div>`;
+  }
+}
+function renderLog(){
+  const listEl=document.getElementById('logList'),pagEl=document.getElementById('logPagination');
+  if(!allLogData.length){listEl.innerHTML='<div class="empty-msg"><div class="empty-icon">📋</div>No inspections recorded yet.</div>';pagEl.innerHTML='';return;}
+  const total=Math.ceil(allLogData.length/PAGE_SIZE),start=(logPage-1)*PAGE_SIZE,page=allLogData.slice(start,start+PAGE_SIZE);
+  listEl.innerHTML=`<div class="results-count">${allLogData.length} records</div>`+
+    page.map((r,i)=>`
+    <div class="log-item ${(r.condition||'').toLowerCase()}" onclick="toggleLogDetail(${start+i})">
+      <div class="log-item-top"><div><div class="log-item-id">${r.feId||''}</div><div class="log-item-loc">${r.location||''}</div></div><div class="log-item-date">${r.inspectionDate||''}</div></div>
+      <div class="log-item-badges">
+        <span class="badge badge-${(r.condition||'').toLowerCase()}">${r.condition}</span>
+        <span class="badge badge-${(r.gasLevel||'').toLowerCase()}">${r.gasLevel}</span>
+        <span class="badge badge-dept">${r.department||''}</span>
       </div>
-    </div>
-  `).join('');
+      <div class="log-detail" id="log-detail-${start+i}">
+        <div class="log-detail-row">Inspector: <span>${r.inspector||'—'}</span></div>
+        <div class="log-detail-row">Type: <span>${r.feType||'—'}</span></div>
+        <div class="log-detail-row">Next Expiry: <span>${r.expiryDate||'—'}</span></div>
+        <div class="log-detail-row">Comments: <span>${r.comments||'—'}</span></div>
+      </div>
+    </div>`).join('');
+  if(total>1){
+    let p=`<button class="page-btn" onclick="goLogPage(${logPage-1})" ${logPage===1?'disabled':''}>‹</button>`;
+    for(let i=1;i<=total;i++) p+=`<button class="page-btn ${i===logPage?'active':''}" onclick="goLogPage(${i})">${i}</button>`;
+    p+=`<button class="page-btn" onclick="goLogPage(${logPage+1})" ${logPage===total?'disabled':''}>›</button>`;
+    pagEl.innerHTML=p;
+  }else pagEl.innerHTML='';
+}
+function toggleLogDetail(i){const el=document.getElementById('log-detail-'+i);if(el)el.classList.toggle('open');}
+function goLogPage(p){logPage=p;renderLog();window.scrollTo(0,0);}
+
+// ── DASHBOARD ─────────────────────────────────────────────────
+async function loadDashboard(){
+  document.getElementById('ds-total').textContent=ASSETS.length;
+  try{const data=await gasPost({action:'getDashboard',site:currentSiteId});renderDashboard(data);}
+  catch(err){renderDashboard(null);}
+}
+function renderDashboard(data){
+  const d=data&&data.summary?data.summary:{};
+  document.getElementById('ds-inspected').textContent=d.inspected!==undefined?d.inspected:'–';
+  document.getElementById('ds-faulty').textContent=d.faulty!==undefined?d.faulty:'–';
+  document.getElementById('ds-expiring').textContent=d.expiring!==undefined?d.expiring:'–';
+  const depts=SITE_DEFS[currentSiteId].depts,deptData=data&&data.byDept?data.byDept:{};
+  document.getElementById('deptBars').innerHTML=depts.map(dept=>{
+    const ins=deptData[dept]||0,tot=ASSETS.filter(a=>a.dept===dept).length,pct=tot?Math.round((ins/tot)*100):0;
+    return `<div class="dept-bar-row"><div class="dept-bar-label"><span class="dept-name">${dept.charAt(0)+dept.slice(1).toLowerCase()}</span><span class="dept-pct">${ins}/${tot} (${pct}%)</span></div><div class="dept-bar-track"><div class="dept-bar-fill" style="width:${pct}%"></div></div></div>`;
+  }).join('');
+  if(isAdminUnlocked&&data&&data.expiry) renderExpiryList(data.expiry);
+}
+function renderExpiryList(rows){
+  const el=document.getElementById('expiryList');
+  if(!rows||!rows.length){el.innerHTML='<div class="empty-msg"><div class="empty-icon">✅</div>No expiry alerts.</div>';return;}
+  const today=new Date();
+  el.innerHTML=rows.map(r=>{
+    const exp=new Date(r.expiryDate),diff=Math.round((exp-today)/86400000);
+    let cls='ok',lbl='Valid';
+    if(diff<0){cls='expired';lbl='EXPIRED';}else if(diff<=30){cls='due-soon';lbl=diff+'d left';}
+    return `<div class="expiry-item ${cls}"><div class="expiry-info"><div class="exp-id">${r.feId}</div><div class="exp-loc">${r.location}</div></div><div class="expiry-date ${cls}">${lbl}</div></div>`;
+  }).join('');
 }
 
-// ── CONFIG: ADD/EDIT MODAL ────────────────────────────────────────────────────
-let editingFeId = null; // null = adding new
-
-function openAddModal() {
-  editingFeId = null;
-  document.getElementById('feModalTitle').textContent = '➕ Add Extinguisher';
-  document.getElementById('feModalSub').textContent = 'Fill in the details for the new unit.';
-  document.getElementById('feModalSaveBtn').textContent = 'Add Unit';
-
-  // Suggest next ID
-  const nums = ASSETS.map(a => parseInt(a.id.replace('FE-',''))).filter(n => !isNaN(n));
-  const nextNum = nums.length ? Math.max(...nums) + 1 : 1;
-  document.getElementById('feModalId').value = 'FE-' + String(nextNum).padStart(2,'0');
-  document.getElementById('feModalId').readOnly = false;
-  document.getElementById('feIdHint').textContent = '';
-  document.getElementById('feModalType').value = 'DCP';
-  document.getElementById('feModalDept').value = 'TECHNICAL';
-  document.getElementById('feModalLoc').value = '';
-
-  document.getElementById('feModal').classList.add('open');
-  setTimeout(() => document.getElementById('feModalLoc').focus(), 200);
+// ── QR LABELS ─────────────────────────────────────────────────
+const BASE_URL=window.location.origin+window.location.pathname;
+function renderQRFilters(){
+  const depts=['ALL',...SITE_DEFS[currentSiteId].depts];
+  document.getElementById('qrFilterRow').innerHTML=depts.map(d=>{
+    const c=d==='ALL'?ASSETS.length:ASSETS.filter(a=>a.dept===d).length;
+    return `<button class="asset-filter-btn${d==='ALL'?' active':''}" onclick="filterQR('${d}')" data-qrfilter="${d}">${d==='ALL'?'All ('+c+')':d.charAt(0)+d.slice(1).toLowerCase()+' ('+c+')'}</button>`;
+  }).join('');
+  document.getElementById('qrLabelSub').textContent=ASSETS.length+' units — print, cut & laminate';
 }
-
-function openEditModal(feId) {
-  const a = ASSETS.find(x => x.id === feId);
-  if (!a) return;
-  editingFeId = feId;
-
-  document.getElementById('feModalTitle').textContent = `✏️ Edit ${feId}`;
-  document.getElementById('feModalSub').textContent = 'Update the details for this unit.';
-  document.getElementById('feModalSaveBtn').textContent = 'Save Changes';
-
-  document.getElementById('feModalId').value = a.id;
-  document.getElementById('feModalId').readOnly = true; // ID cannot be changed on edit
-  document.getElementById('feIdHint').textContent = 'ID cannot be changed after creation.';
-  document.getElementById('feModalType').value = a.type;
-  document.getElementById('feModalDept').value = a.dept;
-  document.getElementById('feModalLoc').value = a.loc;
-
-  document.getElementById('feModal').classList.add('open');
-  setTimeout(() => document.getElementById('feModalLoc').focus(), 200);
-}
-
-function closeFeModal() {
-  document.getElementById('feModal').classList.remove('open');
-}
-
-function saveFeModal() {
-  const rawId = document.getElementById('feModalId').value.trim().toUpperCase();
-  const type  = document.getElementById('feModalType').value;
-  const dept  = document.getElementById('feModalDept').value;
-  const loc   = document.getElementById('feModalLoc').value.trim();
-
-  if (!rawId) { showToast('FE ID is required', 'error'); return; }
-  if (!loc)   { showToast('Location is required', 'error'); return; }
-
-  if (editingFeId === null) {
-    // Adding new — check for duplicate ID
-    if (ASSETS.find(a => a.id === rawId)) {
-      showToast(`${rawId} already exists`, 'error'); return;
-    }
-    ASSETS.push({ id: rawId, type, dept, loc });
-    // Sort by numeric ID
-    ASSETS.sort((a, b) => {
-      const na = parseInt(a.id.replace('FE-','')) || 0;
-      const nb = parseInt(b.id.replace('FE-','')) || 0;
-      return na - nb;
-    });
-    closeFeModal();
-    refreshAllViews();
-    showToast(`✓ ${rawId} added`);
-  } else {
-    // Editing existing
-    const idx = ASSETS.findIndex(a => a.id === editingFeId);
-    if (idx === -1) { showToast('Unit not found', 'error'); return; }
-    ASSETS[idx] = { id: editingFeId, type, dept, loc };
-    closeFeModal();
-    refreshAllViews();
-    showToast(`✓ ${editingFeId} updated`);
-  }
-}
-
-// ── CONFIG: DELETE MODAL ──────────────────────────────────────────────────────
-let deletingFeId = null;
-
-function openDeleteModal(feId) {
-  const a = ASSETS.find(x => x.id === feId);
-  if (!a) return;
-  deletingFeId = feId;
-  document.getElementById('deleteModalMsg').innerHTML =
-    `Are you sure you want to remove <strong>${feId}</strong>?<br>
-     <span style="font-size:12px; color:var(--muted);">${a.type} — ${a.loc}</span><br><br>
-     <span style="font-size:12px; color:var(--red);">This removes it from the asset register and QR labels. Inspection history in the log is not affected.</span>`;
-  document.getElementById('deleteModal').classList.add('open');
-}
-
-function closeDeleteModal() {
-  document.getElementById('deleteModal').classList.remove('open');
-  deletingFeId = null;
-}
-
-function confirmDelete() {
-  if (!deletingFeId) return;
-  const idx = ASSETS.findIndex(a => a.id === deletingFeId);
-  if (idx !== -1) {
-    const removed = ASSETS.splice(idx, 1)[0];
-    closeDeleteModal();
-    refreshAllViews();
-    showToast(`${removed.id} removed`);
-  }
-}
-
-// ── TOAST ─────────────────────────────────────────────────────────────────────
-let toastTimer;
-function showToast(msg, type='') {
-  const el = document.getElementById('toast');
-  el.textContent = msg;
-  el.className = 'toast' + (type === 'error' ? ' error' : '') + ' show';
-  clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => el.classList.remove('show'), 3200);
-}
-
-// ── QR LABELS ─────────────────────────────────────────────────────────────────
-const BASE_URL = window.location.origin + window.location.pathname + '?fe=';
-let qrGenerated = false;
-let currentQrFilter = 'ALL';
-
-function filterQR(dept) {
-  currentQrFilter = dept;
-  document.querySelectorAll('[data-qrfilter]').forEach(b => {
-    b.classList.toggle('active', b.dataset.qrfilter === dept);
-  });
-  qrGenerated = false; // force re-render for new filter
+function filterQR(dept){
+  currentQrFilter=dept;
+  document.querySelectorAll('[data-qrfilter]').forEach(b=>b.classList.toggle('active',b.dataset.qrfilter===dept));
+  document.getElementById('qrGrid').innerHTML='';
   renderQRGrid();
 }
-
-function renderQRGrid() {
-  // Refresh filter button counts each time
-  const depts = ['SALES','RESTAURANT','ADMINISTRATION','TECHNICAL'];
-  const deptLabels = { SALES:'Sales', RESTAURANT:'Restaurant', ADMINISTRATION:'Administration', TECHNICAL:'Technical' };
-  document.querySelector('[data-qrfilter="ALL"]').textContent = `All (${ASSETS.length})`;
-  depts.forEach(d => {
-    const btn = document.querySelector(`[data-qrfilter="${d}"]`);
-    if (btn) {
-      const count = ASSETS.filter(a => a.dept === d).length;
-      btn.textContent = `${deptLabels[d]} (${count})`;
-    }
-  });
-
-  const grid = document.getElementById('qrGrid');
-  if (!grid) return;
-  const filtered = currentQrFilter === 'ALL'
-    ? ASSETS
-    : ASSETS.filter(a => a.dept === currentQrFilter);
-
-  grid.innerHTML = filtered.map(a => `
+function renderQRGrid(){
+  const site=SITE_DEFS[currentSiteId],grid=document.getElementById('qrGrid');
+  if(!grid) return;
+  const filtered=currentQrFilter==='ALL'?ASSETS:ASSETS.filter(a=>a.dept===currentQrFilter);
+  if(!filtered.length){grid.innerHTML='<div class="empty-msg" style="grid-column:1/-1;"><div class="empty-icon">🏷️</div>No units to display.</div>';return;}
+  grid.innerHTML=filtered.map(a=>`
     <div class="qr-label-card">
-      <div class="qr-label-head">
-        <span style="font-size:12px;">🧯</span>
-        <div class="qr-label-head-text">MJSR FIRE<br>EXTINGUISHER</div>
+      <div class="qr-label-head" style="background:${site.color};">
+        <span style="font-size:11px;">🧯</span>
+        <div class="qr-label-head-text">FIRE<br>EXTINGUISHER</div>
       </div>
       <div class="qr-label-body">
         <div class="qr-label-id">${a.id}</div>
         <div class="qr-label-type">${a.type}</div>
         <div class="qr-label-loc">${a.loc}</div>
-        <div class="qr-label-dept">${a.dept}</div>
+        <div class="qr-label-site">${site.short}</div>
         <div class="qr-label-qr" id="qrc-${a.id}"></div>
-        <div class="qr-label-url">${BASE_URL}${a.id}</div>
+        <div class="qr-label-url">${BASE_URL}?site=${site.id}&fe=${a.id}</div>
       </div>
-    </div>
-  `).join('');
-
-  // Generate QR codes after DOM is painted
-  requestAnimationFrame(() => {
-    filtered.forEach(a => {
-      const el = document.getElementById('qrc-' + a.id);
-      if (!el || el.children.length) return;
-      try {
-        new QRCode(el, {
-          text: BASE_URL + a.id,
-          width: 120, height: 120,
-          colorDark: '#2c3e50',
-          colorLight: '#ffffff',
-          correctLevel: QRCode.CorrectLevel.H
-        });
-      } catch(e) {
-        el.innerHTML = '<div style="font-size:10px;color:#aaa;text-align:center;">QR unavailable</div>';
-      }
+    </div>`).join('');
+  requestAnimationFrame(()=>{
+    filtered.forEach(a=>{
+      const el=document.getElementById('qrc-'+a.id);
+      if(!el||el.children.length) return;
+      try{new QRCode(el,{text:BASE_URL+'?site='+site.id+'&fe='+a.id,width:110,height:110,colorDark:'#2c3e50',colorLight:'#ffffff',correctLevel:QRCode.CorrectLevel.H});}
+      catch(e){el.innerHTML='<div style="font-size:9px;color:#aaa;text-align:center;">QR unavailable</div>';}
     });
   });
+}
+
+// ── CONFIG ────────────────────────────────────────────────────
+function renderConfigDeptFilter(){
+  const depts=['',...SITE_DEFS[currentSiteId].depts];
+  document.getElementById('cfgDeptFilter').innerHTML=depts.map(d=>`<option value="${d}">${d?d.charAt(0)+d.slice(1).toLowerCase():'All Depts'}</option>`).join('');
+}
+function renderConfigList(){
+  const search=(document.getElementById('cfgSearch')?.value||'').toLowerCase();
+  const deptF=document.getElementById('cfgDeptFilter')?.value||'';
+  const filtered=ASSETS.filter(a=>{
+    const ms=!search||a.id.toLowerCase().includes(search)||a.loc.toLowerCase().includes(search)||a.type.toLowerCase().includes(search);
+    return ms&&(!deptF||a.dept===deptF);
+  });
+  document.getElementById('cfgSubtitle').textContent=ASSETS.length+' units registered';
+  const list=document.getElementById('cfgList');
+  const im={'DCP':'🔴','AFFF':'🟢','CO2':'⚫','DCP Trolley':'🛒'};
+  if(!filtered.length){list.innerHTML='<div class="cfg-no-results">No units match your search.</div>';return;}
+  list.innerHTML=filtered.map(a=>`
+    <div class="cfg-item" style="border-left-color:var(--site-color);">
+      <div class="cfg-item-top" onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='flex'?'none':'flex'">
+        <div class="cfg-item-icon">${im[a.type]||'🧯'}</div>
+        <div class="cfg-item-info">
+          <div class="cfg-item-id">${a.id}</div>
+          <div class="cfg-item-loc">${a.loc}</div>
+          <div class="cfg-item-tags"><span class="cfg-tag cfg-tag-type">${a.type}</span><span class="cfg-tag cfg-tag-dept">${a.dept.charAt(0)+a.dept.slice(1).toLowerCase()}</span></div>
+        </div>
+        <div style="color:var(--muted);font-size:16px;flex-shrink:0;">›</div>
+      </div>
+      <div class="cfg-item-actions" style="display:none;">
+        <button class="cfg-btn-edit"   onclick="cfgPinGate('edit','${a.id}')">✏️ Edit</button>
+        <button class="cfg-btn-delete" onclick="cfgPinGate('delete','${a.id}')">🗑️ Remove</button>
+      </div>
+    </div>`).join('');
+}
+function cfgPinGate(action,id){
+  if(cfgUnlocked){dispatchCfgAction(action,id);return;}
+  cfgPendingAction={action,id};
+  document.getElementById('cfgPinInput').value=''; document.getElementById('cfgPinHint').textContent='';
+  document.getElementById('cfgPinModal').classList.add('open');
+  setTimeout(()=>document.getElementById('cfgPinInput').focus(),200);
+}
+function checkCfgPin(){
+  const v=document.getElementById('cfgPinInput').value;
+  if(v===ADMIN_PIN){
+    cfgUnlocked=true; closeCfgPinModal();
+    if(cfgPendingAction){dispatchCfgAction(cfgPendingAction.action,cfgPendingAction.id);cfgPendingAction=null;}
+    clearTimeout(cfgLockTimer); cfgLockTimer=setTimeout(()=>{cfgUnlocked=false;},5*60*1000);
+  }else{
+    const inp=document.getElementById('cfgPinInput');
+    inp.classList.add('shake'); inp.value=''; document.getElementById('cfgPinHint').textContent='Incorrect PIN';
+    setTimeout(()=>inp.classList.remove('shake'),500);
+  }
+}
+function closeCfgPinModal(){document.getElementById('cfgPinModal').classList.remove('open');cfgPendingAction=null;}
+function dispatchCfgAction(a,id){if(a==='add')openAddModal();if(a==='edit')openEditModal(id);if(a==='delete')openDeleteModal(id);}
+
+function openAddModal(){
+  editingFeId=null;
+  const site=SITE_DEFS[currentSiteId];
+  const nums=ASSETS.map(a=>parseInt(a.id.replace(/[^0-9]/g,''))).filter(n=>!isNaN(n));
+  const next=nums.length?Math.max(...nums)+1:1;
+  document.getElementById('feModalTitle').textContent='➕ Add Extinguisher';
+  document.getElementById('feModalSub').textContent='Fill in the details for the new unit.';
+  document.getElementById('feModalSaveBtn').textContent='Add Unit';
+  document.getElementById('feModalId').value=site.prefix+'-'+String(next).padStart(2,'0');
+  document.getElementById('feModalId').readOnly=false;
+  document.getElementById('feIdHint').textContent='';
+  document.getElementById('feModalType').value='DCP';
+  populateFeModalDept(site.depts[0]);
+  document.getElementById('feModalLoc').value='';
+  document.getElementById('feModal').classList.add('open');
+  setTimeout(()=>document.getElementById('feModalLoc').focus(),200);
+}
+function openEditModal(feId){
+  const a=ASSETS.find(x=>x.id===feId);if(!a)return;
+  editingFeId=feId;
+  document.getElementById('feModalTitle').textContent='✏️ Edit '+feId;
+  document.getElementById('feModalSub').textContent='Update the details for this unit.';
+  document.getElementById('feModalSaveBtn').textContent='Save Changes';
+  document.getElementById('feModalId').value=a.id;
+  document.getElementById('feModalId').readOnly=true;
+  document.getElementById('feIdHint').textContent='ID cannot be changed after creation.';
+  document.getElementById('feModalType').value=a.type;
+  populateFeModalDept(a.dept);
+  document.getElementById('feModalLoc').value=a.loc;
+  document.getElementById('feModal').classList.add('open');
+  setTimeout(()=>document.getElementById('feModalLoc').focus(),200);
+}
+function populateFeModalDept(selected){
+  const depts=SITE_DEFS[currentSiteId].depts;
+  document.getElementById('feModalDept').innerHTML=depts.map(d=>`<option value="${d}" ${d===selected?'selected':''}>${d.charAt(0)+d.slice(1).toLowerCase()}</option>`).join('');
+}
+function closeFeModal(){document.getElementById('feModal').classList.remove('open');}
+function saveFeModal(){
+  const rawId=document.getElementById('feModalId').value.trim().toUpperCase();
+  const type=document.getElementById('feModalType').value;
+  const dept=document.getElementById('feModalDept').value;
+  const loc=document.getElementById('feModalLoc').value.trim();
+  if(!rawId){showToast('FE ID is required','error');return;}
+  if(!loc){showToast('Location is required','error');return;}
+  if(editingFeId===null){
+    if(ASSETS.find(a=>a.id===rawId)){showToast(rawId+' already exists','error');return;}
+    ASSETS.push({id:rawId,type,dept,loc});
+    ASSETS.sort((a,b)=>{const na=parseInt(a.id.replace(/[^0-9]/g,''))||0,nb=parseInt(b.id.replace(/[^0-9]/g,''))||0;return na-nb;});
+    closeFeModal(); refreshAllViews(); showToast('✓ '+rawId+' added');
+  }else{
+    const idx=ASSETS.findIndex(a=>a.id===editingFeId);
+    if(idx===-1){showToast('Unit not found','error');return;}
+    ASSETS[idx]={id:editingFeId,type,dept,loc};
+    closeFeModal(); refreshAllViews(); showToast('✓ '+editingFeId+' updated');
+  }
+}
+function openDeleteModal(feId){
+  const a=ASSETS.find(x=>x.id===feId);if(!a)return;
+  deletingFeId=feId;
+  document.getElementById('deleteModalMsg').innerHTML=`Are you sure you want to remove <strong>${feId}</strong>?<br><span style="font-size:11px;color:var(--muted);">${a.type} — ${a.loc}</span><br><br><span style="font-size:11px;color:var(--red);">Inspection history is not affected.</span>`;
+  document.getElementById('deleteModal').classList.add('open');
+}
+function closeDeleteModal(){document.getElementById('deleteModal').classList.remove('open');deletingFeId=null;}
+function confirmDelete(){
+  if(!deletingFeId)return;
+  const idx=ASSETS.findIndex(a=>a.id===deletingFeId);
+  if(idx!==-1){const rem=ASSETS.splice(idx,1)[0];closeDeleteModal();refreshAllViews();showToast(rem.id+' removed');}
+}
+
+// ── ADMIN PIN ─────────────────────────────────────────────────
+function openPinModal(){
+  if(isAdminUnlocked){showTab('dashboard');return;}
+  document.getElementById('pinInput').value='';
+  document.getElementById('pinModal').classList.add('open');
+  setTimeout(()=>document.getElementById('pinInput').focus(),200);
+}
+function closePinModal(){document.getElementById('pinModal').classList.remove('open');}
+function checkPin(){
+  const v=document.getElementById('pinInput').value;
+  if(v===ADMIN_PIN){
+    isAdminUnlocked=true; closePinModal();
+    document.getElementById('adminPanel').classList.add('active');
+    showTab('dashboard'); loadDashboard(); showToast('Admin access granted');
+  }else{
+    const inp=document.getElementById('pinInput');
+    inp.classList.add('shake'); inp.value='';
+    setTimeout(()=>inp.classList.remove('shake'),500); showToast('Incorrect PIN','error');
+  }
+}
+function logoutAdmin(){isAdminUnlocked=false;document.getElementById('adminPanel').classList.remove('active');showToast('Logged out');}
+
+// ── QR SCANNER ────────────────────────────────────────────────
+async function openScanner(){
+  const o=document.getElementById('qrOverlay'); o.style.display='flex';
+  try{
+    qrStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'}});
+    const v=document.getElementById('qrVideo'); v.srcObject=qrStream; v.play(); scanFrame(v);
+  }catch(err){closeScanner();showToast('Camera denied. Use manual selection.','error');}
+}
+function closeScanner(){
+  document.getElementById('qrOverlay').style.display='none';
+  if(qrStream){qrStream.getTracks().forEach(t=>t.stop());qrStream=null;}
+  if(qrAnimFrame){cancelAnimationFrame(qrAnimFrame);qrAnimFrame=null;}
+}
+function scanFrame(video){
+  if(!qrStream)return;
+  if(!video.videoWidth){qrAnimFrame=requestAnimationFrame(()=>scanFrame(video));return;}
+  const c=document.createElement('canvas'); c.width=video.videoWidth; c.height=video.videoHeight;
+  c.getContext('2d').drawImage(video,0,0);
+  if('BarcodeDetector' in window){
+    new BarcodeDetector({formats:['qr_code']}).detect(c).then(codes=>{
+      if(codes.length>0)handleQrResult(codes[0].rawValue);
+      else qrAnimFrame=requestAnimationFrame(()=>scanFrame(video));
+    });
+  }else qrAnimFrame=requestAnimationFrame(()=>scanFrame(video));
+}
+function handleQrResult(raw){
+  closeScanner();
+  let feId=raw,siteId=currentSiteId;
+  try{const u=new URL(raw);feId=u.searchParams.get('fe')||raw;const s=u.searchParams.get('site');if(s&&SITE_DEFS[s])siteId=s;}catch(e){}
+  feId=feId.trim().toUpperCase();
+  if(siteId!==currentSiteId)selectSite(siteId);
+  const asset=ASSETS.find(a=>a.id===feId);
+  if(asset){openInspectForm(feId);showTab('scan');}
+  else showToast('QR not recognised: '+feId,'error');
+}
+
+// ── TOAST ─────────────────────────────────────────────────────
+let toastTimer;
+function showToast(msg,type=''){
+  const el=document.getElementById('toast');
+  el.textContent=msg; el.className='toast'+(type==='error'?' error':'')+' show';
+  clearTimeout(toastTimer); toastTimer=setTimeout(()=>el.classList.remove('show'),3200);
 }
 </script>
 </body>
