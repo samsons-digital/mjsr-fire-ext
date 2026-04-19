@@ -464,7 +464,7 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script>
-const GAS_URL='https://script.google.com/macros/s/AKfycbzOvjJFBAlqRkY67SRjcsWD51oJXVmqtKj2956ah5Wus1ERis68b0rhq4TfIcrc2ofJ/exec';
+const GAS_URL='YOUR_GAS_URL_HERE';
 const ADMIN_PIN='1234';
 const PAGE_SIZE=25;
 
@@ -564,9 +564,45 @@ let isAdminUnlocked=false,cfgUnlocked=false,cfgPendingAction=null,cfgLockTimer=n
 let editingFeId=null,deletingFeId=null,logPage=1,allLogData=[],currentAssetFilter='ALL',currentQrFilter='ALL';
 let qrStream=null,qrAnimFrame=null;
 
-// ── ASSET PERSISTENCE ─────────────────────────────────────────
-function loadSiteAssets(siteId){try{const s=localStorage.getItem('fe_assets_'+siteId);if(s)return JSON.parse(s);}catch(e){}return SITE_DEFS[siteId].seed.map(a=>({...a}));}
-function saveSiteAssets(siteId,assets){try{localStorage.setItem('fe_assets_'+siteId,JSON.stringify(assets));}catch(e){}}
+// ── ASSET PERSISTENCE (GAS-backed, localStorage as cache) ────
+async function fetchSiteAssets(siteId){
+  // 1. Try GAS
+  try {
+    const data = await gasPost({ action:'getAssets', site:siteId });
+    if (data.status==='ok' && Array.isArray(data.assets) && data.assets.length > 0) {
+      // Cache locally so the UI is instant on next visit
+      try { localStorage.setItem('fe_assets_'+siteId, JSON.stringify(data.assets)); } catch(e){}
+      return data.assets;
+    }
+  } catch(e) {}
+  // 2. Try localStorage cache
+  try {
+    const saved = localStorage.getItem('fe_assets_'+siteId);
+    if (saved) return JSON.parse(saved);
+  } catch(e) {}
+  // 3. Fall back to seed
+  return SITE_DEFS[siteId].seed.map(a=>({...a}));
+}
+
+async function pushSiteAssets(siteId, assets){
+  // Always update localStorage immediately so UI stays responsive
+  try { localStorage.setItem('fe_assets_'+siteId, JSON.stringify(assets)); } catch(e){}
+  // Push to GAS in background — don't block the UI
+  try {
+    await gasPost({ action:'saveAssets', site:siteId, assets });
+  } catch(e) {
+    Logger && Logger.log && Logger.log('pushSiteAssets failed: '+e.message);
+  }
+}
+
+// Legacy sync helpers still used by buildSiteSelector for the count display
+function loadSiteAssets(siteId){
+  try { const s=localStorage.getItem('fe_assets_'+siteId); if(s) return JSON.parse(s); } catch(e){}
+  return SITE_DEFS[siteId].seed.map(a=>({...a}));
+}
+function saveSiteAssets(siteId,assets){
+  try { localStorage.setItem('fe_assets_'+siteId,JSON.stringify(assets)); } catch(e){}
+}
 
 // ── INIT ──────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded',()=>{
@@ -592,9 +628,11 @@ function buildSiteSelector(){
   });
 }
 
-function selectSite(siteId){
+async function selectSite(siteId){
   const site=SITE_DEFS[siteId];
-  currentSiteId=siteId; ASSETS=loadSiteAssets(siteId);
+  currentSiteId=siteId;
+  // Show portal immediately with seed/cached data, then refresh from GAS
+  ASSETS=loadSiteAssets(siteId);
   document.documentElement.style.setProperty('--site-color',site.color);
   document.getElementById('headerIcon').textContent=site.icon;
   document.getElementById('headerSub').textContent=site.label+' — Samsons Group';
@@ -611,6 +649,17 @@ function selectSite(siteId){
   renderConfigDeptFilter(); renderConfigList(); loadDashboard();
   showTab('scan');
   if(site.placeholder) showPlaceholder();
+  // Now fetch fresh from GAS and update if different
+  const fresh = await fetchSiteAssets(siteId);
+  if(JSON.stringify(fresh) !== JSON.stringify(ASSETS)){
+    ASSETS = fresh;
+    refreshManualSelect();
+    renderAssetFilters(); renderAssetList(currentAssetFilter);
+    renderQRFilters(); document.getElementById('qrGrid').innerHTML='';
+    renderConfigDeptFilter(); renderConfigList();
+    document.getElementById('cfgSubtitle').textContent=ASSETS.length+' units registered';
+    buildSiteSelector();
+  }
 }
 
 function goHome(){
@@ -640,7 +689,17 @@ function initDates(){
 }
 
 function refreshAllViews(){
-  saveSiteAssets(currentSiteId,ASSETS);
+  pushSiteAssets(currentSiteId,ASSETS); // pushes to GAS + localStorage
+  refreshManualSelect(); renderAssetFilters(); renderAssetList(currentAssetFilter);
+  renderQRFilters(); document.getElementById('qrGrid').innerHTML='';
+  renderConfigDeptFilter(); renderConfigList();
+  document.getElementById('cfgSubtitle').textContent=ASSETS.length+' units registered';
+  buildSiteSelector();
+}
+
+// UI-only refresh — used after an explicit pushSiteAssets call to avoid double-push
+function refreshAllViewsLocal(){
+  try { localStorage.setItem('fe_assets_'+currentSiteId, JSON.stringify(ASSETS)); } catch(e){}
   refreshManualSelect(); renderAssetFilters(); renderAssetList(currentAssetFilter);
   renderQRFilters(); document.getElementById('qrGrid').innerHTML='';
   renderConfigDeptFilter(); renderConfigList();
@@ -988,23 +1047,33 @@ function populateFeModalDept(selected){
   document.getElementById('feModalDept').innerHTML=depts.map(d=>`<option value="${d}" ${d===selected?'selected':''}>${d.charAt(0)+d.slice(1).toLowerCase()}</option>`).join('');
 }
 function closeFeModal(){document.getElementById('feModal').classList.remove('open');}
-function saveFeModal(){
+async function saveFeModal(){
   const rawId=document.getElementById('feModalId').value.trim().toUpperCase();
   const type=document.getElementById('feModalType').value;
   const dept=document.getElementById('feModalDept').value;
   const loc=document.getElementById('feModalLoc').value.trim();
   if(!rawId){showToast('FE ID is required','error');return;}
   if(!loc){showToast('Location is required','error');return;}
+
+  const btn=document.getElementById('feModalSaveBtn');
+  btn.disabled=true; btn.textContent='Saving...';
+
   if(editingFeId===null){
-    if(ASSETS.find(a=>a.id===rawId)){showToast(rawId+' already exists','error');return;}
+    if(ASSETS.find(a=>a.id===rawId)){showToast(rawId+' already exists','error');btn.disabled=false;btn.textContent='Add Unit';return;}
     ASSETS.push({id:rawId,type,dept,loc});
     ASSETS.sort((a,b)=>{const na=parseInt(a.id.replace(/[^0-9]/g,''))||0,nb=parseInt(b.id.replace(/[^0-9]/g,''))||0;return na-nb;});
-    closeFeModal(); refreshAllViews(); showToast('✓ '+rawId+' added');
+    closeFeModal();
+    await pushSiteAssets(currentSiteId,ASSETS);
+    refreshAllViewsLocal();
+    showToast('✓ '+rawId+' added and saved');
   }else{
     const idx=ASSETS.findIndex(a=>a.id===editingFeId);
-    if(idx===-1){showToast('Unit not found','error');return;}
+    if(idx===-1){showToast('Unit not found','error');btn.disabled=false;btn.textContent='Save Changes';return;}
     ASSETS[idx]={id:editingFeId,type,dept,loc};
-    closeFeModal(); refreshAllViews(); showToast('✓ '+editingFeId+' updated');
+    closeFeModal();
+    await pushSiteAssets(currentSiteId,ASSETS);
+    refreshAllViewsLocal();
+    showToast('✓ '+editingFeId+' updated and saved');
   }
 }
 function openDeleteModal(feId){
@@ -1014,10 +1083,16 @@ function openDeleteModal(feId){
   document.getElementById('deleteModal').classList.add('open');
 }
 function closeDeleteModal(){document.getElementById('deleteModal').classList.remove('open');deletingFeId=null;}
-function confirmDelete(){
+async function confirmDelete(){
   if(!deletingFeId)return;
   const idx=ASSETS.findIndex(a=>a.id===deletingFeId);
-  if(idx!==-1){const rem=ASSETS.splice(idx,1)[0];closeDeleteModal();refreshAllViews();showToast(rem.id+' removed');}
+  if(idx!==-1){
+    const rem=ASSETS.splice(idx,1)[0];
+    closeDeleteModal();
+    await pushSiteAssets(currentSiteId,ASSETS);
+    refreshAllViewsLocal();
+    showToast(rem.id+' removed and saved');
+  }
 }
 
 // ── ADMIN PIN ─────────────────────────────────────────────────
