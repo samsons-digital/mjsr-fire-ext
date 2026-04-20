@@ -464,7 +464,7 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script>
-const GAS_URL='https://script.google.com/macros/s/AKfycbzOvjJFBAlqRkY67SRjcsWD51oJXVmqtKj2956ah5Wus1ERis68b0rhq4TfIcrc2ofJ/exec';
+const GAS_URL='YOUR_GAS_URL_HERE';
 const ADMIN_PIN='1234';
 const PAGE_SIZE=25;
 
@@ -566,32 +566,46 @@ let qrStream=null,qrAnimFrame=null;
 
 // ── ASSET PERSISTENCE (GAS-backed, localStorage as cache) ────
 async function fetchSiteAssets(siteId){
-  // 1. Try GAS
+  // 1. Try GAS — only trust it if it returns at least one asset
+  //    An empty response likely means the Assets_ tab isn't seeded yet,
+  //    NOT that there are genuinely no units — so we don't let it wipe localStorage.
   try {
     const data = await gasPost({ action:'getAssets', site:siteId });
-    if (data.status==='ok' && Array.isArray(data.assets) && data.assets.length > 0) {
-      // Cache locally so the UI is instant on next visit
+    if (data.status === 'ok' && Array.isArray(data.assets) && data.assets.length > 0) {
       try { localStorage.setItem('fe_assets_'+siteId, JSON.stringify(data.assets)); } catch(e){}
       return data.assets;
     }
-  } catch(e) {}
-  // 2. Try localStorage cache
+    // GAS returned empty — fall through to localStorage (do NOT use seed as override)
+  } catch(e) {
+    // GAS unreachable — fall through to localStorage
+  }
+  // 2. localStorage cache — use this if GAS was empty or unreachable
   try {
     const saved = localStorage.getItem('fe_assets_'+siteId);
-    if (saved) return JSON.parse(saved);
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+    }
   } catch(e) {}
-  // 3. Fall back to seed
+  // 3. Absolute last resort — hardcoded seed (only if nothing else exists)
   return SITE_DEFS[siteId].seed.map(a=>({...a}));
 }
 
 async function pushSiteAssets(siteId, assets){
-  // Always update localStorage immediately so UI stays responsive
+  // 1. Always write to localStorage immediately so UI is instant
   try { localStorage.setItem('fe_assets_'+siteId, JSON.stringify(assets)); } catch(e){}
-  // Push to GAS in background — don't block the UI
+  // 2. Push to GAS — this is the durable store
+  if (!GAS_URL || GAS_URL === 'YOUR_GAS_URL_HERE') return; // skip if not configured
   try {
-    await gasPost({ action:'saveAssets', site:siteId, assets });
+    const data = await gasPost({ action:'saveAssets', site:siteId, assets });
+    if (!data || data.status !== 'ok') {
+      throw new Error(data && data.message ? data.message : 'Save returned non-ok status');
+    }
+    // Success — silently update localStorage with confirmed server state
   } catch(e) {
-    Logger && Logger.log && Logger.log('pushSiteAssets failed: '+e.message);
+    // Visible warning — user must know the save failed so they can retry
+    showToast('⚠️ Cloud save failed — changes saved locally only. Retry by editing the unit again.', 'error');
+    console.error('pushSiteAssets GAS error:', e.message);
   }
 }
 
@@ -1056,24 +1070,31 @@ async function saveFeModal(){
   if(!loc){showToast('Location is required','error');return;}
 
   const btn=document.getElementById('feModalSaveBtn');
-  btn.disabled=true; btn.textContent='Saving...';
+  btn.disabled=true; btn.textContent='Saving to cloud...';
 
+  let newId = '';
   if(editingFeId===null){
     if(ASSETS.find(a=>a.id===rawId)){showToast(rawId+' already exists','error');btn.disabled=false;btn.textContent='Add Unit';return;}
     ASSETS.push({id:rawId,type,dept,loc});
     ASSETS.sort((a,b)=>{const na=parseInt(a.id.replace(/[^0-9]/g,''))||0,nb=parseInt(b.id.replace(/[^0-9]/g,''))||0;return na-nb;});
-    closeFeModal();
-    await pushSiteAssets(currentSiteId,ASSETS);
-    refreshAllViewsLocal();
-    showToast('✓ '+rawId+' added and saved');
+    newId = rawId;
   }else{
     const idx=ASSETS.findIndex(a=>a.id===editingFeId);
     if(idx===-1){showToast('Unit not found','error');btn.disabled=false;btn.textContent='Save Changes';return;}
     ASSETS[idx]={id:editingFeId,type,dept,loc};
-    closeFeModal();
-    await pushSiteAssets(currentSiteId,ASSETS);
-    refreshAllViewsLocal();
-    showToast('✓ '+editingFeId+' updated and saved');
+    newId = editingFeId;
+  }
+
+  closeFeModal();
+
+  // Push to GAS — pushSiteAssets will show a warning toast if it fails
+  await pushSiteAssets(currentSiteId, ASSETS);
+  refreshAllViewsLocal();
+
+  // Only show success toast if we didn't already show an error toast
+  const toastEl = document.getElementById('toast');
+  if (!toastEl.classList.contains('error') || !toastEl.classList.contains('show')) {
+    showToast('✓ ' + newId + (editingFeId===null ? ' added' : ' updated') + ' — saved to cloud');
   }
 }
 function openDeleteModal(feId){
